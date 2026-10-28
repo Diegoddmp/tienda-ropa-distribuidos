@@ -1,46 +1,179 @@
-import React from 'react';
-import { products } from '../data/mockProducts';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 const ProductCatalog = () => {
-  return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-      <h2>Catálogo de Prendas</h2>
-      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-        {products.map((product) => {
-          // Extraemos las tallas únicas recorriendo las variantes del producto
-          const tallasUnicas = [...new Set(product.variantes.map(v => v.talla))];
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('TODAS');
+  const [searchTerm, setSearchTerm] = useState('');
 
-          return (
-            <div key={product.id} style={{ border: '1px solid #ddd', padding: '15px', borderRadius: '8px', width: '250px', backgroundColor: '#fff' }}>
-              <img 
-                src={product.imagen_url} 
-                alt={product.nombre} 
-                style={{ width: '100%', borderRadius: '4px', objectFit: 'cover' }} 
-              />
-              <h3 style={{ margin: '10px 0 5px' }}>{product.nombre}</h3>
-              <span style={{ backgroundColor: '#eee', padding: '3px 8px', borderRadius: '12px', fontSize: '0.8rem' }}>
-                {product.categoria.nombre}
-              </span>
-              <p style={{ color: '#555', fontSize: '0.9rem', height: '40px', overflow: 'hidden' }}>
-                {product.descripcion}
-              </p>
-              <p style={{ fontSize: '1.3rem', fontWeight: 'bold', margin: '10px 0' }}>
-                ${product.precio.toFixed(2)}
-              </p>
-              
-              <div style={{ marginBottom: '15px', fontSize: '0.9rem' }}>
-                <strong>Tallas disponibles: </strong>
-                {tallasUnicas.length > 0 ? tallasUnicas.join(', ') : 'Agotado'}
-              </div>
-              
-              {/* El Integrante 2 (Carrito) le dará funcionalidad a este botón después */}
-              <button href="#"style={{ width: '100%', padding: '10px', backgroundColor: '#000', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>
-                Agregar al carrito
-              </button>
-            </div>
-          );
-        })}
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/productos');
+
+        if (!response.ok) {
+          throw new Error('Error al obtener los productos');
+        }
+
+        const data = await response.json();
+        setProducts(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  if (loading) {
+    return <div className="shein-status-box">Cargando tendencia...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="shein-status-box" style={{ color: '#fa6338' }}>
+        <h3>No se pudo conectar con el catálogo</h3>
+        <p style={{ marginTop: '8px' }}>Detalle: {error}</p>
       </div>
+    );
+  }
+
+  // Categorías únicas extraídas de los productos
+  const categories = ['TODAS', ...new Set(products.map((p) => p.categoria).filter(Boolean))];
+
+  // Filtrado por categoría y texto de búsqueda
+  const filteredProducts = products.filter((product) => {
+    const matchesCategory =
+      selectedCategory === 'TODAS' || product.categoria === selectedCategory;
+    const matchesSearch =
+      product.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.descripcion?.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  return (
+    <div>
+      {/* Banner promocional estilo SHEIN 
+      <section className="shein-hero">
+        <div>
+          <span className="shein-hero-tag">Tendencia 2026</span>
+          <h2>Colección Esenciales</h2>
+          <p>Descubre las prendas más buscadas con disponibilidad en tiempo real.</p>
+        </div>
+         Llamado a la acción promocional (comentado para uso futuro)
+        <div className="shein-hero-promo-box">
+          <strong>HASTA -40%</strong>
+          <span>En artículos seleccionados</span>
+        </div>
+        
+      </section>*/}
+
+      {/* Barra de filtros por categoría y buscador */}
+      <div className="catalog-toolbar">
+        <div className="category-pills">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              className={`category-pill ${selectedCategory === cat ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(cat)}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        <div className="search-box">
+          <input
+            type="text"
+            placeholder="Buscar prendas..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <button type="button" className="search-box-btn">
+            Buscar
+          </button>
+        </div>
+      </div>
+
+      {/* Grid de productos */}
+      {filteredProducts.length === 0 ? (
+        <div className="shein-status-box">
+          No se encontraron prendas que coincidan con tu filtro.
+        </div>
+      ) : (
+        <div className="shein-product-grid">
+          {filteredProducts.map((product) => {
+            const variantes = product.variantes || [];
+            const variantesConStock = variantes.filter((v) => v.stock > 0);
+            const tallasUnicas = [...new Set(variantesConStock.map((v) => v.talla))];
+            const agotado = variantes.length > 0 && tallasUnicas.length === 0;
+
+            return (
+              <div key={product.id} className="shein-card">
+                <div className="shein-card-img-wrapper">
+                  <Link to={`/producto/${product.id}`}>
+                    <img
+                      src={
+                        product.imagen_url ||
+                        'https://placehold.co/600x800/f3f3f3/222222?text=SHEIN'
+                      }
+                      alt={product.nombre}
+                    />
+                  </Link>
+
+                  {product.categoria && (
+                    <span className="shein-category-tag">{product.categoria}</span>
+                  )}
+
+                  {agotado && <span className="shein-stock-tag">Agotado</span>}
+
+                  <button type="button" className="shein-quick-add" disabled={agotado}>
+                    {agotado ? 'Sin Stock' : '+ Añadir a la bolsa'}
+                  </button>
+                </div>
+
+                <div className="shein-card-body">
+                  <Link to={`/producto/${product.id}`} className="shein-card-title">
+                    {product.nombre}
+                  </Link>
+
+                  <div className="shein-price-row">
+                    <span className="shein-price">
+                      ${parseFloat(product.precio).toFixed(2)}
+                    </span>
+                  </div>
+
+                  <div className="shein-sizes-row">
+                    {tallasUnicas.length > 0 ? (
+                      tallasUnicas.map((talla) => (
+                        <span key={talla} className="shein-size-chip">
+                          {talla}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="shein-size-chip">Sin tallas disponibles</span>
+                    )}
+                  </div>
+
+                  <div className="shein-card-actions">
+                    <Link to={`/producto/${product.id}`} className="shein-btn-outline">
+                      Ver detalle
+                    </Link>
+                    <button type="button" className="shein-btn-primary" disabled={agotado}>
+                      Agregar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
