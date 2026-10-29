@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route, Link, Outlet } from 'react-router-dom';
+import ProductCatalog from './components/ProductCatalog';
+import ProductDetail from './pages/productDetail';
+import AdminPanel from './components/AdminPanel';
 import { ShoppingCart } from './components/ShoppingCart';
 import { useCart } from './hooks/useCart';
+import './App.css';
 
-export default function App() {
+function StorefrontLayout() {
   const {
     cart,
     addToCart,
@@ -13,106 +18,147 @@ export default function App() {
     totalItemsCount,
   } = useCart();
 
-  const [selectedSize, setSelectedSize] = useState('M');
-
-  // Catálogo simulado para probar el carrito (Apartado 2)
-  const sampleProducts = [
-    { id: 'p1', name: 'Camiseta Oversize Básica', price: 25.0, stock: 6 },
-    { id: 'p2', name: 'Pantalón Cargo Negro', price: 42.0, stock: 4 },
-    { id: 'p3', name: 'Hoodie Fleece Premium', price: 55.0, stock: 3 },
-  ];
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   const handleConfirmOrder = async (orderPayload) => {
     console.log('--- PEDIDO EMITIDO ---', orderPayload);
     alert(`¡Pedido ${orderPayload.orderId} confirmado!\nTotal: $${orderPayload.total.toFixed(2)}`);
     clearCart();
+    setIsCartOpen(false);
   };
 
   return (
-    <div style={{
-      fontFamily: 'system-ui, -apple-system, sans-serif',
-      maxWidth: '1100px',
-      margin: '40px auto',
-      padding: '0 20px',
-      color: '#1a202c',
-    }}>
-      <header style={{ marginBottom: '30px', borderBottom: '1px solid #e2e8f0', paddingBottom: '16px' }}>
-        <h1 style={{ margin: 0, fontSize: '1.8rem' }}>Tienda Virtual - Pruebas Apartado 2</h1>
-        <p style={{ margin: '6px 0 0 0', color: '#718096' }}>
-          Módulo de Carrito de Compras: selección de ropa, cálculo de total y confirmación de pedidos[cite: 5].
-        </p>
-      </header>
+    <div className="storefront">
+      {/* Barra superior promocional estilo SHEIN */}
+      <div className="top-promo-bar">
+        ENVÍO ESTÁNDAR GRATIS EN PEDIDOS DE +$29.99 <span>| NUEVA COLECCIÓN DE TEMPORADA</span>
+      </div>
 
-      <div style={{ display: 'flex', gap: '40px', alignItems: 'flex-start' }}>
-        {/* Catálogo simulado (Apartado 1) */}
-        <section style={{ flex: 1 }}>
-          <h2 style={{ fontSize: '1.25rem', marginBottom: '16px', color: '#2d3748' }}>Prendas disponibles</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
-            {sampleProducts.map((prod) => (
-              <div
-                key={prod.id}
+      {/* Header principal */}
+      <header className="shein-header">
+        <div className="shein-header-inner">
+          <Link to="/" className="shein-logo">
+            TIENDA DE ROPA
+          </Link>
+
+          <ul className="shein-nav-links">
+            <li><Link to="/" className="active">Novedades</Link></li>
+            <li><Link to="/">Mujer</Link></li>
+            <li><Link to="/">Hombre</Link></li>
+            <li><Link to="/">Accesorios</Link></li>
+            <li><Link to="/" className="sale-link">Rebajas</Link></li>
+            <li><Link to="/admin" style={{ color: '#2563eb', fontWeight: 'bold' }}>Panel Admin</Link></li>
+          </ul>
+
+          <div className="shein-header-actions">
+            <button
+              type="button"
+              className="shein-icon-btn"
+              onClick={() => setIsCartOpen(!isCartOpen)}
+              style={{
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 14px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                backgroundColor: '#ffffff'
+              }}
+            >
+              <span style={{ fontWeight: '600' }}>Bolsa</span>
+              <span
+                className="cart-badge"
                 style={{
-                  border: '1px solid #e2e8f0',
+                  backgroundColor: '#0f172a',
+                  color: '#fff',
                   borderRadius: '10px',
-                  padding: '16px',
-                  backgroundColor: '#ffffff',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                  padding: '2px 8px',
+                  fontSize: '0.8rem',
+                  fontWeight: 'bold'
                 }}
               >
-                <h3 style={{ margin: '0 0 8px 0', fontSize: '1.05rem' }}>{prod.name}</h3>
-                <p style={{ margin: '4px 0', fontWeight: 'bold', color: '#2b6cb0', fontSize: '1.1rem' }}>
-                  ${prod.price.toFixed(2)}
-                </p>
-                <p style={{ margin: '4px 0', fontSize: '0.85rem', color: '#718096' }}>
-                  Stock disponible: {prod.stock}
-                </p>
-
-                <div style={{ margin: '14px 0 10px 0' }}>
-                  <label style={{ fontSize: '0.85rem', marginRight: '8px', fontWeight: '500' }}>Talla:</label>
-                  <select
-                    value={selectedSize}
-                    onChange={(e) => setSelectedSize(e.target.value)}
-                    style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #cbd5e0' }}
-                  >
-                    <option value="S">S</option>
-                    <option value="M">M</option>
-                    <option value="L">L</option>
-                    <option value="XL">XL</option>
-                  </select>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => addToCart(prod, selectedSize)}
-                  style={{
-                    width: '100%',
-                    padding: '9px',
-                    backgroundColor: '#edf2f7',
-                    border: '1px solid #cbd5e0',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontWeight: '600',
-                  }}
-                >
-                  Agregar al Carrito
-                </button>
-              </div>
-            ))}
+                {totalItemsCount}
+              </span>
+            </button>
           </div>
-        </section>
+        </div>
+      </header>
 
-        {/* Componente del Carrito (Apartado 2) */}
-        <aside>
-          <ShoppingCart
-            cart={cart}
-            totalAmount={totalAmount}
-            totalItemsCount={totalItemsCount}
-            onUpdateQuantity={updateQuantity}
-            onRemoveFromCart={removeFromCart}
-            onConfirmOrder={handleConfirmOrder}
-          />
-        </aside>
-      </div>
+      {/* Panel lateral desplegable del carrito */}
+      {isCartOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            right: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0,0,0,0.4)',
+            zIndex: 1000,
+            display: 'flex',
+            justifyContent: 'flex-end',
+          }}
+          onClick={() => setIsCartOpen(false)}
+        >
+          <div
+            style={{
+              backgroundColor: '#fff',
+              width: '100%',
+              maxWidth: '420px',
+              height: '100%',
+              overflowY: 'auto',
+              padding: '24px',
+              boxShadow: '-4px 0 16px rgba(0,0,0,0.1)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '12px' }}>
+              <button
+                type="button"
+                onClick={() => setIsCartOpen(false)}
+                style={{
+                  border: 'none',
+                  background: 'none',
+                  fontSize: '1.2rem',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                }}
+              >
+                ✕ Cerrar
+              </button>
+            </div>
+
+            <ShoppingCart
+              cart={cart}
+              totalAmount={totalAmount}
+              totalItemsCount={totalItemsCount}
+              onUpdateQuantity={updateQuantity}
+              onRemoveFromCart={removeFromCart}
+              onConfirmOrder={handleConfirmOrder}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Contenido principal con acceso a la función addToCart para las rutas hijas */}
+      <main className="shein-main">
+        <Outlet context={{ addToCart }} />
+      </main>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route element={<StorefrontLayout />}>
+          <Route path="/" element={<ProductCatalog />} />
+          <Route path="/producto/:id" element={<ProductDetail />} />
+        </Route>
+        <Route path="/admin" element={<AdminPanel />} />
+      </Routes>
+    </BrowserRouter>
   );
 }

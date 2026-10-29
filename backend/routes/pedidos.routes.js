@@ -290,6 +290,19 @@ router.post('/', async (req, res) => {
         // Guardar todos los cambios
         await cliente.query('COMMIT');
 
+        // **** NUEVO: notificar la compra en tiempo real
+        const io = req.app.get('io');
+
+        if (io) {
+            io.emit('order:new', {
+                pedido,
+                detalles
+            });
+
+            // **** NUEVO: avisar que cambió el inventario
+            io.emit('inventory:update');
+        }
+
         res.status(201).json({
             mensaje: 'Pedido registrado correctamente',
             pedido,
@@ -322,3 +335,75 @@ router.post('/', async (req, res) => {
 });
 
 module.exports = router;
+
+
+// ============================================
+// PATCH: ACTUALIZAR ESTADO DE UN PEDIDO
+// ============================================
+router.patch('/:id/estado', async (req, res) => {
+
+    const { id } = req.params;
+    const { estado } = req.body;
+
+    // **** NUEVO: validar ID
+    if (!/^[1-9]\d*$/.test(id)) {
+        return res.status(400).json({
+            mensaje: 'ID de pedido inválido'
+        });
+    }
+
+    // **** NUEVO: validar estados permitidos
+    const estadosPermitidos = [
+        'pendiente',
+        'preparando',
+        'enviado',
+        'entregado',
+        'cancelado'
+    ];
+
+    if (!estadosPermitidos.includes(estado)) {
+        return res.status(400).json({
+            mensaje: 'Estado no permitido'
+        });
+    }
+
+    try {
+
+        // **** NUEVO: actualizar en PostgreSQL
+        const resultado = await pool.query(
+            `UPDATE pedidos
+             SET estado = $1
+             WHERE id = $2
+             RETURNING *`,
+            [estado, id]
+        );
+
+        if (resultado.rowCount === 0) {
+            return res.status(404).json({
+                mensaje: 'Pedido no encontrado'
+            });
+        }
+
+        const pedidoActualizado = resultado.rows[0];
+
+        // **** NUEVO: notificar mediante Socket.IO
+        const io = req.app.get('io');
+
+        if (io) {
+            io.emit('order:status', pedidoActualizado);
+        }
+
+        res.status(200).json({
+            mensaje: 'Estado actualizado correctamente',
+            pedido: pedidoActualizado
+        });
+
+    } catch (error) {
+
+        console.error(error.message);
+
+        res.status(500).json({
+            mensaje: 'Error al actualizar el estado'
+        });
+    }
+});

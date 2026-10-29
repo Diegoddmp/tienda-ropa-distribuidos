@@ -3,6 +3,39 @@ const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/db');
 
+// ============================================
+// **** NUEVO: GET - CONSULTAR TODO EL INVENTARIO
+// ============================================
+router.get('/', async (req, res) => {
+    try {
+
+        const resultado = await pool.query(`
+            SELECT
+                v.id AS variante_id,
+                p.nombre AS producto,
+                v.talla,
+                v.color,
+                v.stock
+            FROM variantes_producto v
+            INNER JOIN productos p
+                ON v.producto_id = p.id
+            WHERE p.activo = TRUE
+            ORDER BY p.nombre, v.talla, v.color
+        `);
+
+        res.status(200).json(resultado.rows);
+
+    } catch (error) {
+
+        console.error(error.message);
+
+        res.status(500).json({
+            mensaje: 'Error al consultar el inventario'
+        });
+
+    }
+});
+
 // GET: Consultar inventario de un producto
 router.get('/producto/:id', async (req, res) => {
     try {
