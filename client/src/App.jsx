@@ -1,12 +1,12 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, Outlet } from 'react-router-dom';
 import ProductCatalog from './components/ProductCatalog';
 import ProductDetail from './pages/productDetail';
+import AdminPanel from './components/AdminPanel';
 import './App.css';
 
-function App() {
+function StorefrontLayout() {
   return (
-    <BrowserRouter>
+    <div className="storefront">
       {/* Barra superior promocional estilo SHEIN */}
       <div className="top-promo-bar">
         ENVÍO ESTÁNDAR GRATIS EN PEDIDOS DE +$29.99 <span>| NUEVA COLECCIÓN DE TEMPORADA</span>
@@ -38,11 +38,22 @@ function App() {
 
       {/* Contenido principal */}
       <main className="shein-main">
-        <Routes>
+        <Outlet />
+      </main>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route element={<StorefrontLayout />}>
           <Route path="/" element={<ProductCatalog />} />
           <Route path="/producto/:id" element={<ProductDetail />} />
-        </Routes>
-      </main>
+        </Route>
+        <Route path="/admin" element={<AdminPanel />} />
+      </Routes>
     </BrowserRouter>
   );
 }

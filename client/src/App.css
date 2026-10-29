@@ -1,3 +1,26 @@
+#root {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+#root > .admin-panel {
+  flex: 1;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.storefront {
+  flex: 1;
+  min-width: 0;
+}
+
 /* ===== RESET & VARIABLES ESTILO SHEIN ===== */
 :root {
   --shein-black: #000000;
@@ -10,13 +33,14 @@
   --font-main: 'Helvetica Neue', Helvetica, Arial, system-ui, -apple-system, sans-serif;
 }
 
-* {
+.storefront,
+.storefront * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-body {
+.storefront {
   font-family: var(--font-main);
   background-color: var(--shein-white);
   color: var(--shein-dark);

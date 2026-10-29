@@ -36,16 +36,16 @@ const ProductCatalog = () => {
   if (error) {
     return (
       <div className="shein-status-box" style={{ color: '#fa6338' }}>
-        <h3>No se pudo conectar con el catálogo</h3>
+        <h3>No se pudo conectar con el catÃ¡logo</h3>
         <p style={{ marginTop: '8px' }}>Detalle: {error}</p>
       </div>
     );
   }
 
-  // Categorías únicas extraídas de los productos
+  // CategorÃ­as Ãºnicas extraÃ­das de los productos
   const categories = ['TODAS', ...new Set(products.map((p) => p.categoria).filter(Boolean))];
 
-  // Filtrado por categoría y texto de búsqueda
+  // Filtrado por categorÃ­a y texto de bÃºsqueda
   const filteredProducts = products.filter((product) => {
     const matchesCategory =
       selectedCategory === 'TODAS' || product.categoria === selectedCategory;
@@ -57,22 +57,22 @@ const ProductCatalog = () => {
 
   return (
     <div>
-      {/* Banner promocional estilo SHEIN 
+      {/* Banner promocional estilo SHEIN
       <section className="shein-hero">
         <div>
           <span className="shein-hero-tag">Tendencia 2026</span>
-          <h2>Colección Esenciales</h2>
-          <p>Descubre las prendas más buscadas con disponibilidad en tiempo real.</p>
+          <h2>ColecciÃ³n Esenciales</h2>
+          <p>Descubre las prendas mÃ¡s buscadas con disponibilidad en tiempo real.</p>
         </div>
-         Llamado a la acción promocional (comentado para uso futuro)
+         Llamado a la acciÃ³n promocional (comentado para uso futuro)
         <div className="shein-hero-promo-box">
           <strong>HASTA -40%</strong>
-          <span>En artículos seleccionados</span>
+          <span>En artÃ­culos seleccionados</span>
         </div>
-        
+
       </section>*/}
 
-      {/* Barra de filtros por categoría y buscador */}
+      {/* Barra de filtros por categorÃ­a y buscador */}
       <div className="catalog-toolbar">
         <div className="category-pills">
           {categories.map((cat) => (
@@ -133,7 +133,7 @@ const ProductCatalog = () => {
                   {agotado && <span className="shein-stock-tag">Agotado</span>}
 
                   <button type="button" className="shein-quick-add" disabled={agotado}>
-                    {agotado ? 'Sin Stock' : '+ Añadir a la bolsa'}
+                    {agotado ? 'Sin Stock' : '+ AÃ±adir a la bolsa'}
                   </button>
                 </div>
 
