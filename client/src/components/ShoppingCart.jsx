@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export function ShoppingCart({
   cart,
@@ -7,6 +7,7 @@ export function ShoppingCart({
   onUpdateQuantity,
   onRemoveFromCart,
   onConfirmOrder,
+  onContinueShopping,
 }) {
   const [nombreCliente, setNombreCliente] = useState('');
   const [loading, setLoading] = useState(false);
@@ -44,172 +45,60 @@ export function ShoppingCart({
   };
 
   return (
-    <div style={{
-      border: '1px solid #e2e8f0',
-      borderRadius: '12px',
-      padding: '24px',
-      backgroundColor: '#ffffff',
-      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
-      width: '100%',
-      height: 'fit-content',
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid #edf2f7', paddingBottom: '12px' }}>
-        <h2 style={{ fontSize: '1.25rem', margin: 0, color: '#1a202c' }}>
-          Mi Bolsa
-        </h2>
-        <span style={{ backgroundColor: '#edf2f7', color: '#4a5568', padding: '2px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 'bold' }}>
-          {totalItemsCount} {totalItemsCount === 1 ? 'prenda' : 'prendas'}
-        </span>
-      </div>
+    <section className="fashion-cart">
+      <header className="fashion-cart-heading">
+        <h2 id="fashion-cart-title">Tu bolsa.</h2>
+        <span className="fashion-cart-count">{totalItemsCount} {totalItemsCount === 1 ? 'prenda' : 'prendas'}</span>
+      </header>
 
       {cart.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '30px 0', color: '#a0aec0' }}>
-          <p style={{ margin: 0 }}>Tu bolsa está vacía.</p>
+        <div className="fashion-cart-empty">
+          <svg width="55" height="62" viewBox="0 0 56 64" fill="none" aria-hidden="true"><path d="M10 20h36l3 39H7l3-39Z" stroke="currentColor" strokeWidth="1.2"/><path d="M19 24V13a9 9 0 0 1 18 0v11" stroke="currentColor" strokeWidth="1.2"/></svg>
+          <h3>Un espacio para tus favoritos.</h3>
+          <p>Tu bolsa está vacía. Explora la colección y encuentra esa prenda que va contigo.</p>
+          <button type="button" className="fashion-btn-primary" onClick={onContinueShopping}>Explorar la colección <span aria-hidden="true">↗</span></button>
         </div>
       ) : (
-        <form onSubmit={handleCheckout}>
-          <div style={{ maxHeight: '320px', overflowY: 'auto', marginBottom: '16px', paddingRight: '4px' }}>
+        <form onSubmit={handleCheckout} className="fashion-cart-form" aria-busy={loading}>
+          <div className="fashion-cart-items" aria-label="Prendas en tu bolsa">
             {cart.map((item) => (
-              <div
-                key={item.variante_id}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '12px 0',
-                  borderBottom: '1px solid #f7fafc',
-                }}
-              >
-                <div>
-                  <div style={{ fontWeight: '600', color: '#2d3748', fontSize: '0.95rem' }}>
-                    {item.name}
-                  </div>
-                  <div style={{ fontSize: '0.8rem', color: '#718096', marginTop: '2px' }}>
-                    Talla: <strong>{item.size}</strong>
-                    {item.color ? <> · Color: <strong>{item.color}</strong></> : null}
-                    {' '}· ${item.price.toFixed(2)} c/u
-                  </div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#fa6338', marginTop: '4px' }}>
-                    Subtotal: ${item.subtotal.toFixed(2)}
-                  </div>
+              <article key={item.variante_id} className="fashion-cart-item">
+                <div className="fashion-cart-item-heading">
+                  <h3>{item.name}</h3>
+                  <button type="button" className="fashion-cart-remove" onClick={() => onRemoveFromCart(item.variante_id)} aria-label={`Quitar ${item.name} de la bolsa`} title="Quitar prenda">×</button>
                 </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <button
-                    type="button"
-                    onClick={() => onUpdateQuantity(item.variante_id, item.quantity - 1)}
-                    style={{
-                      width: '28px',
-                      height: '28px',
-                      border: '1px solid #cbd5e0',
-                      borderRadius: '6px',
-                      background: '#fff',
-                      cursor: 'pointer',
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    -
-                  </button>
-                  <span style={{ minWidth: '22px', textAlign: 'center', fontWeight: '600' }}>
-                    {item.quantity}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => onUpdateQuantity(item.variante_id, item.quantity + 1)}
-                    disabled={item.quantity >= item.stock}
-                    style={{
-                      width: '28px',
-                      height: '28px',
-                      border: '1px solid #cbd5e0',
-                      borderRadius: '6px',
-                      background: item.quantity >= item.stock ? '#edf2f7' : '#fff',
-                      cursor: item.quantity >= item.stock ? 'not-allowed' : 'pointer',
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    +
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onRemoveFromCart(item.variante_id)}
-                    style={{
-                      border: 'none',
-                      background: 'none',
-                      color: '#e53e3e',
-                      cursor: 'pointer',
-                      fontSize: '1rem',
-                      marginLeft: '6px',
-                      padding: '4px',
-                    }}
-                    title="Quitar"
-                  >
-                    ✕
-                  </button>
+                <p className="fashion-cart-variant">Talla: <strong>{item.size}</strong>{item.color ? <> · Color: <strong>{item.color}</strong></> : null}</p>
+                <p className="fashion-cart-unit-price">${item.price.toFixed(2)} por unidad</p>
+                <div className="fashion-cart-item-bottom">
+                  <div className="fashion-cart-quantity" role="group" aria-label={`Cantidad de ${item.name}`}>
+                    <button type="button" onClick={() => onUpdateQuantity(item.variante_id, item.quantity - 1)} aria-label={`Reducir cantidad de ${item.name}`}>−</button>
+                    <span aria-live="polite" aria-atomic="true">{item.quantity}</span>
+                    <button type="button" onClick={() => onUpdateQuantity(item.variante_id, item.quantity + 1)} disabled={item.quantity >= item.stock} aria-label={`Aumentar cantidad de ${item.name}`}>+</button>
+                  </div>
+                  <p className="fashion-cart-subtotal"><span>Subtotal</span> ${item.subtotal.toFixed(2)}</p>
                 </div>
-              </div>
+                {item.quantity >= item.stock && <p className="fashion-cart-stock-note">Has alcanzado las unidades disponibles.</p>}
+              </article>
             ))}
           </div>
 
-          <div style={{ borderTop: '2px solid #edf2f7', paddingTop: '16px' }}>
-            <div style={{ marginBottom: '14px' }}>
-              <label
-                htmlFor="nombre-cliente-input"
-                style={{ display: 'block', fontSize: '0.82rem', fontWeight: '700', color: '#2d3748', marginBottom: '6px', textTransform: 'uppercase' }}
-              >
-                Nombre del Cliente *
-              </label>
-              <input
-                id="nombre-cliente-input"
-                type="text"
-                placeholder="Ej. María Gómez"
-                value={nombreCliente}
-                onChange={(e) => setNombreCliente(e.target.value)}
-                maxLength={100}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: '1px solid #cbd5e0',
-                  borderRadius: '6px',
-                  fontSize: '0.9rem',
-                }}
-              />
-            </div>
+          <div className="fashion-cart-checkout">
+            <span className="fashion-eyebrow">Un paso más</span>
+            <h3>Completa tu pedido</h3>
+            <p className="fashion-cart-help" id="fashion-checkout-help">Ingresa tu nombre para registrar la compra.</p>
+            <label htmlFor="nombre-cliente-input" className="fashion-field-label">Nombre del cliente <span aria-hidden="true">*</span></label>
+            <input id="nombre-cliente-input" className="fashion-field" type="text" autoComplete="name" aria-required="true" aria-invalid={Boolean(errorMsg && !nombreCliente.trim())} aria-describedby={errorMsg ? 'fashion-checkout-help fashion-checkout-error' : 'fashion-checkout-help'} placeholder="Tu nombre completo" value={nombreCliente} onChange={(e) => setNombreCliente(e.target.value)} maxLength={100} />
 
-            {errorMsg && (
-              <div style={{ color: '#e53e3e', fontSize: '0.83rem', marginBottom: '12px', fontWeight: '600' }}>
-                {errorMsg}
-              </div>
-            )}
+            {errorMsg && <div id="fashion-checkout-error" className="fashion-feedback fashion-feedback-error" role="alert">{errorMsg}</div>}
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <span style={{ fontSize: '1rem', color: '#4a5568' }}>Total:</span>
-              <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#000000' }}>
-                ${totalAmount.toFixed(2)}
-              </span>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                width: '100%',
-                padding: '14px',
-                backgroundColor: loading ? '#a0aec0' : '#000000',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '4px',
-                fontSize: '0.9rem',
-                fontWeight: '800',
-                letterSpacing: '1px',
-                textTransform: 'uppercase',
-                cursor: loading ? 'not-allowed' : 'pointer',
-              }}
-            >
-              {loading ? 'Procesando compra...' : 'Confirmar Pedido'}
+            <div className="fashion-cart-total"><span>Total</span><strong>${totalAmount.toFixed(2)}</strong></div>
+            <button type="submit" className="fashion-btn-primary fashion-cart-submit" disabled={loading}>
+              {loading ? 'Procesando compra…' : 'Confirmar pedido'}<span aria-hidden="true">{loading ? '…' : '↗'}</span>
             </button>
+            <button type="button" className="fashion-cart-continue" onClick={onContinueShopping}>← Seguir explorando</button>
           </div>
         </form>
       )}
-    </div>
+    </section>
   );
 }

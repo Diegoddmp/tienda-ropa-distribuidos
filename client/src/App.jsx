@@ -1,14 +1,19 @@
-import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route, Link, Outlet, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import ProductCatalog from './components/ProductCatalog';
 import ProductDetail from './pages/productDetail';
 import AdminPanel from './components/AdminPanel';
 import { ShoppingCart } from './components/ShoppingCart';
+import CartDrawer from './components/CartDrawer';
+import OrderTracking from './pages/OrderTracking';
+import { readTrackedOrder, rememberTrackedOrder } from './services/orderTracking';
 import { useCart } from './hooks/useCart';
 import './App.css';
+import './Storefront.css';
 
 function StorefrontLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const isAdmin = location.pathname.startsWith('/admin');
 
   const {
@@ -22,6 +27,13 @@ function StorefrontLayout() {
   } = useCart();
 
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [orderConfirmation, setOrderConfirmation] = useState(null);
+  // NUEVO: referencia local, obtenida únicamente de la respuesta de una compra exitosa.
+  const [trackingOrderId, setTrackingOrderId] = useState(readTrackedOrder);
+
+  useEffect(() => {
+    if (!location.hash) window.scrollTo(0, 0);
+  }, [location.pathname, location.hash]);
 
   const handleConfirmOrder = async (orderPayload) => {
     const response = await fetch('http://localhost:3000/api/pedidos', {
@@ -38,158 +50,71 @@ function StorefrontLayout() {
       throw new Error(data.mensaje || 'Error al registrar el pedido');
     }
 
-    alert(
-      `¡Pedido #${data.pedido.id} registrado correctamente!\nCliente: ${data.pedido.nombre_cliente}\nTotal: $${parseFloat(data.pedido.total).toFixed(2)}`
-    );
+    setOrderConfirmation(data.pedido);
+    // NUEVO: habilita la demostración de seguimiento de este pedido, sin guardar datos personales.
+    setTrackingOrderId(rememberTrackedOrder(data.pedido.id));
 
     clearCart();
     setIsCartOpen(false);
   };
 
   return (
-    <div className="storefront">
-      {/* Barra superior promocional estilo SHEIN */}
-      <div className="top-promo-bar">
-        ENVÍO ESTÁNDAR GRATIS EN PEDIDOS DE +$29.99 <span>| NUEVA COLECCIÓN DE TEMPORADA</span>
-      </div>
-
-      {/* Header principal */}
-      <header className="shein-header">
-        <div className="shein-header-inner">
-          <Link to="/" className="shein-logo">
-            TIENDA DE ROPA
-          </Link>
-
-          <ul className="shein-nav-links">
-            <li><Link to="/" className={!isAdmin ? 'active' : ''}>Catálogo</Link></li>
-            <li><Link to="/">Mujer</Link></li>
-            <li><Link to="/">Hombre</Link></li>
-            <li><Link to="/">Accesorios</Link></li>
-            <li><Link to="/" className="sale-link">Rebajas</Link></li>
-            <li>
-              <Link to="/admin" className={isAdmin ? 'active' : ''}>
-                Panel Admin
-              </Link>
-            </li>
-          </ul>
-
-          <div className="shein-header-actions">
-            <Link
-              to={isAdmin ? '/' : '/admin'}
-              style={{
-                textDecoration: 'none',
-                color: isAdmin ? '#ffffff' : '#000000',
-                backgroundColor: isAdmin ? '#000000' : '#f6f6f6',
-                border: '1px solid #000000',
-                fontWeight: '700',
-                fontSize: '0.78rem',
-                letterSpacing: '0.6px',
-                textTransform: 'uppercase',
-                padding: '8px 14px',
-              }}
-            >
-              {isAdmin ? '← Ver Tienda' : 'Panel Admin'}
-            </Link>
-
-            <button
-              type="button"
-              className="shein-icon-btn"
-              onClick={() => setIsCartOpen(!isCartOpen)}
-              style={{
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '8px 14px',
-                border: '1px solid #000000',
-                backgroundColor: '#ffffff',
-                borderRadius: 0,
-                textTransform: 'uppercase',
-                fontSize: '0.78rem',
-                letterSpacing: '0.6px',
-              }}
-            >
-              <span style={{ fontWeight: '700' }}>Bolsa</span>
-              <span
-                className="cart-badge"
-                style={{
-                  backgroundColor: '#fa6338',
-                  color: '#fff',
-                  borderRadius: '999px',
-                  padding: '2px 7px',
-                  fontSize: '0.75rem',
-                  fontWeight: '800'
-                }}
-              >
-                {totalItemsCount}
-              </span>
-            </button>
-          </div>
+    <div className="storefront fashion-store">
+      <div className="fashion-announcement">EL ARTE DE VESTIR CADA DÍA</div>
+      <header className="fashion-header">
+        <Link to="/" className="fashion-wordmark" aria-label="Tienda de ropa, inicio">
+          TIENDA <span>DE ROPA</span>
+        </Link>
+        <nav className="fashion-nav" aria-label="Navegación principal">
+          <Link to="/" aria-current={location.pathname === '/' ? 'page' : undefined}>Colección</Link>
+          <Link to={isAdmin ? '/admin' : '/#catalogo'} aria-current={isAdmin ? 'page' : undefined}>{isAdmin ? 'Administración' : 'Explorar prendas'}</Link>
+          {trackingOrderId && <Link to={`/seguimiento/${trackingOrderId}`} aria-current={location.pathname.startsWith('/seguimiento/') ? 'page' : undefined}>Mi pedido</Link>}
+        </nav>
+        <div className="fashion-header-actions">
+          <Link to={isAdmin ? '/' : '/admin'} className="fashion-admin-link">{isAdmin ? 'Ver tienda ↗' : 'Panel Admin'}</Link>
+          <button type="button" className="fashion-bag" onClick={() => setIsCartOpen(!isCartOpen)} aria-expanded={isCartOpen} aria-label={`Abrir bolsa, ${totalItemsCount} artículos`}>
+            <svg width="19" height="22" viewBox="0 0 24 26" fill="none" aria-hidden="true"><path d="M4 8h16l1 16H3L4 8Z" stroke="currentColor" strokeWidth="1.3"/><path d="M8 10V6a4 4 0 0 1 8 0v4" stroke="currentColor" strokeWidth="1.3"/></svg>
+            <span>Bolsa</span><span className="fashion-bag-count">{totalItemsCount}</span>
+          </button>
         </div>
       </header>
 
-      {/* Panel lateral desplegable del carrito */}
       {isCartOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            right: 0,
-            width: '100%',
-            height: '100%',
-            backgroundColor: 'rgba(0,0,0,0.45)',
-            zIndex: 1000,
-            display: 'flex',
-            justifyContent: 'flex-end',
-          }}
-          onClick={() => setIsCartOpen(false)}
-        >
-          <div
-            style={{
-              backgroundColor: '#fff',
-              width: '100%',
-              maxWidth: '420px',
-              height: '100%',
-              overflowY: 'auto',
-              padding: '24px',
-              boxShadow: '-4px 0 16px rgba(0,0,0,0.12)',
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '12px' }}>
-              <button
-                type="button"
-                onClick={() => setIsCartOpen(false)}
-                style={{
-                  border: 'none',
-                  background: 'none',
-                  fontSize: '0.85rem',
-                  cursor: 'pointer',
-                  fontWeight: '800',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.8px',
-                }}
-              >
-                ✕ Cerrar
-              </button>
-            </div>
+        <CartDrawer onClose={() => setIsCartOpen(false)}>
+          <ShoppingCart
+            cart={cart}
+            totalAmount={totalAmount}
+            totalItemsCount={totalItemsCount}
+            onUpdateQuantity={updateQuantity}
+            onRemoveFromCart={removeFromCart}
+            onConfirmOrder={handleConfirmOrder}
+            onContinueShopping={() => { setIsCartOpen(false); navigate('/'); }}
+          />
+        </CartDrawer>
+      )}
 
-            <ShoppingCart
-              cart={cart}
-              totalAmount={totalAmount}
-              totalItemsCount={totalItemsCount}
-              onUpdateQuantity={updateQuantity}
-              onRemoveFromCart={removeFromCart}
-              onConfirmOrder={handleConfirmOrder}
-            />
+      {orderConfirmation && (
+        <div className="fashion-order-confirmation" role="status" aria-atomic="true">
+          <span className="fashion-order-check" aria-hidden="true">✓</span>
+          <div>
+            <span className="fashion-eyebrow">Gracias por tu compra</span>
+            <h2>Pedido #{orderConfirmation.id} confirmado.</h2>
+            <p>{orderConfirmation.nombre_cliente} · ${parseFloat(orderConfirmation.total).toFixed(2)}</p>
+            {trackingOrderId && <Link className="fashion-order-tracking-link" to={`/seguimiento/${trackingOrderId}`} onClick={() => setOrderConfirmation(null)}>Ver estado del pedido ↗</Link>}
           </div>
+          <button type="button" className="fashion-cart-close" onClick={() => setOrderConfirmation(null)} aria-label="Cerrar confirmación del pedido">×</button>
         </div>
       )}
 
       {/* Contenido principal con acceso a la función addToCart para las rutas hijas */}
-      <main className="shein-main">
-        <Outlet context={{ addToCart, openCart: () => setIsCartOpen(true) }} />
+      <main className="fashion-main">
+        <Outlet context={{ addToCart, openCart: () => setIsCartOpen(true), trackingOrderId }} />
       </main>
+      <footer className="fashion-footer">
+        <Link to="/" className="fashion-footer-brand">TIENDA DE ROPA</Link>
+        <p>Tu estilo. Tu forma de llevarlo.</p>
+        <Link to="/">Volver al catálogo <span aria-hidden="true">↗</span></Link>
+      </footer>
     </div>
   );
 }
@@ -202,6 +127,8 @@ export default function App() {
           <Route path="/" element={<ProductCatalog />} />
           <Route path="/producto/:id" element={<ProductDetail />} />
           <Route path="/admin" element={<AdminPanel />} />
+          {/* NUEVO: conserva las rutas de los demás integrantes. */}
+          <Route path="/seguimiento/:id" element={<OrderTracking />} />
         </Route>
       </Routes>
     </BrowserRouter>

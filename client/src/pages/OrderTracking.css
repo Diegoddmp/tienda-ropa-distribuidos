@@ -1,0 +1,29 @@
+/* NUEVO: estilos exclusivos de la vista de seguimiento. */
+.fashion-store .fashion-tracking { padding-bottom: 12px; }
+.fashion-store .fashion-tracking-header { display: flex; align-items: center; justify-content: space-between; gap: 28px; padding: 22px 0 32px; border-bottom: 1px solid var(--fashion-line); }
+.fashion-store .fashion-tracking-header h1 { font-family: var(--fashion-display); font-size: clamp(36px, 4vw, 58px); font-weight: 400; line-height: 1.2; }
+.fashion-store .fashion-tracking-header p { margin-top: 14px; font-size: 12px; color: var(--fashion-muted); }
+.fashion-store .fashion-tracking-connection { padding: 12px 16px; border: 1px solid var(--fashion-line); color: var(--fashion-error); font-size: 11px; }
+.fashion-store .fashion-tracking-connection.is-connected { color: var(--fashion-success); }
+.fashion-store .fashion-tracking-current { padding: 36px 0; }
+.fashion-store .fashion-tracking-current .fashion-eyebrow { margin-bottom: 12px; }
+.fashion-store .fashion-tracking-current h2 { font-family: var(--fashion-display); font-size: 32px; font-weight: 400; }
+.fashion-store .fashion-tracking-current p { margin-top: 10px; font-size: 13px; color: var(--fashion-muted); }
+.fashion-store .fashion-tracking-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); list-style: none; border: 1px solid var(--fashion-line); }
+.fashion-store .fashion-tracking-steps li { padding: 26px; border-right: 1px solid var(--fashion-line); color: var(--fashion-muted); }
+.fashion-store .fashion-tracking-steps li:last-child { border-right: 0; }
+.fashion-store .fashion-tracking-steps li.is-complete { background: var(--fashion-sand); color: var(--fashion-ink); }
+.fashion-store .fashion-tracking-step-number { display: grid; place-items: center; width: 32px; height: 32px; margin-bottom: 20px; border: 1px solid #c9c6bb; border-radius: 50%; font-size: 10px; }
+.fashion-store .is-complete .fashion-tracking-step-number { background: var(--fashion-ink); color: white; border-color: var(--fashion-ink); }
+.fashion-store .fashion-tracking-steps strong { font-size: 12px; font-weight: 500; }
+.fashion-store .fashion-tracking-steps p { font-size: 11px; line-height: 1.8; margin-top: 8px; }
+.fashion-store .fashion-tracking-demo { margin-top: 28px; max-width: 620px; color: var(--fashion-muted); font-size: 11px; line-height: 1.8; }
+.fashion-store .fashion-tracking-loading { padding-top: 28px; color: var(--fashion-muted); font-size: 13px; }
+.fashion-store .fashion-tracking .fashion-feedback button { margin-top: 12px; }
+@media (max-width: 767px) {
+  .fashion-store .fashion-tracking-header { align-items: flex-start; flex-direction: column; gap: 20px; }
+  .fashion-store .fashion-tracking-steps { grid-template-columns: 1fr; }
+  .fashion-store .fashion-tracking-steps li { border-right: 0; border-bottom: 1px solid var(--fashion-line); padding: 20px; }
+  .fashion-store .fashion-tracking-steps li:last-child { border-bottom: 0; }
+  .fashion-store .fashion-tracking-step-number { margin-bottom: 12px; }
+}

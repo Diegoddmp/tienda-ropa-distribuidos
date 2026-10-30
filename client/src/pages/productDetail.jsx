@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
+import ProductImage from "../components/ProductImage";
 import { useParams, Link, useOutletContext } from "react-router-dom";
 import socket from "../services/socket";
 
@@ -61,18 +62,16 @@ const ProductDetail = () => {
   };
 
   if (loading) {
-    return <div className="shein-status-box">Cargando prenda...</div>;
+    return <div className="fashion-status" role="status"><span className="fashion-eyebrow">Un momento</span><h1>Cargando tu próxima prenda…</h1></div>;
   }
 
   if (error || !product) {
     return (
-      <div className="shein-status-box">
-        <h2>Producto no encontrado</h2>
-        <p style={{ marginTop: "10px" }}>
-          <Link to="/" className="shein-btn-outline" style={{ display: "inline-block" }}>
-            ← Volver al catálogo
-          </Link>
-        </p>
+      <div className="fashion-status" role="alert">
+        <span className="fashion-eyebrow">La colección</span>
+        <h1>No encontramos esta prenda.</h1>
+        <p>Explora el catálogo para descubrir las prendas disponibles.</p>
+        <Link to="/" className="fashion-btn-outline">← Volver al catálogo</Link>
       </div>
     );
   }
@@ -80,91 +79,38 @@ const ProductDetail = () => {
   const sinStockSeleccionado = !selectedVariant || selectedVariant.stock <= 0;
 
   return (
-    <div>
-      {/* Migas de pan */}
-      <nav className="shein-breadcrumb">
-        <Link to="/">Inicio</Link> / <span>{product.nombre}</span>
+    <div className="fashion-detail">
+      <nav className="fashion-breadcrumb" aria-label="Ruta de navegación">
+        <Link to="/">Colección</Link><span aria-hidden="true">/</span><span aria-current="page">{product.nombre}</span>
       </nav>
-
-      <div className="shein-detail-layout">
-        {/* Columna izquierda: Imagen */}
-        <div className="shein-detail-image-box">
-          <img
-            src={
-              product.imagen_url ||
-              "https://placehold.co/600x800/f3f3f3/222222?text=SHEIN"
-            }
-            alt={product.nombre}
-          />
+      <div className="fashion-detail-layout">
+        <div className="fashion-detail-image">
+          <ProductImage key={product.id} src={product.imagen_url} alt={product.nombre} priority />
         </div>
-
-        {/* Columna derecha: Información y compra */}
-        <div className="shein-detail-info">
+        <div className="fashion-detail-info">
+          <span className="fashion-eyebrow">{product.categoria || 'La colección'}</span>
           <h1>{product.nombre}</h1>
-          <div className="shein-sku">SKU: SHN-2026-00{product.id}</div>
-
-          <div className="shein-detail-price-box">
-            <span className="shein-detail-price">
-              ${parseFloat(product.precio).toFixed(2)}
-            </span>
-            <span className="shein-tax-note">IVA incluido</span>
+          <p className="fashion-reference">Referencia / {product.id}</p>
+          <div className="fashion-detail-price">${parseFloat(product.precio).toFixed(2)}</div>
+          <p className="fashion-description">{product.descripcion || 'Este producto aún no tiene una descripción disponible.'}</p>
+          <div className="fashion-variant-section">
+            <div className="fashion-variant-heading"><h2>Elige talla y color</h2><span>{selectedVariant && selectedVariant.stock > 0 ? `${selectedVariant.stock} disponibles` : 'Sin disponibilidad'}</span></div>
+            {variantes.length > 0 ? (
+              <div className="fashion-variants" role="group" aria-label="Tallas y colores disponibles">
+                {variantes.map((v) => (
+                  <button key={v.variante_id} type="button" disabled={v.stock <= 0} aria-pressed={selectedVariant?.variante_id === v.variante_id} onClick={() => setSelectedVariant(v)} className={`fashion-variant ${selectedVariant?.variante_id === v.variante_id ? 'selected' : ''}`}>
+                    {v.talla}{v.color ? ` · ${v.color}` : ''}
+                  </button>
+                ))}
+              </div>
+            ) : <p className="fashion-muted">Sin tallas disponibles por el momento.</p>}
+            {selectedVariant && <p className="fashion-selection">Tu selección: <strong>{selectedVariant.talla}{selectedVariant.color ? ` / ${selectedVariant.color}` : ''}</strong></p>}
           </div>
-
-          <p style={{ marginBottom: "22px", lineHeight: "1.5", color: "#444", fontSize: "0.92rem" }}>
-            {product.descripcion || "Prenda de temporada con corte cómodo y materiales de alta calidad."}
-          </p>
-
-          {/* Selector de Talla y Color según inventario real */}
-          {variantes.length > 0 && (
-            <div>
-              <div className="shein-section-label">
-                Talla / Color{" "}
-                {selectedVariant && (
-                  <span style={{ fontWeight: 400, color: "#767676" }}>
-                    — Stock disponible: {selectedVariant.stock} uds.
-                  </span>
-                )}
-              </div>
-
-              <div className="shein-variant-pills">
-                {variantes.map((v) => {
-                  const isSelected = selectedVariant?.variante_id === v.variante_id;
-                  return (
-                    <button
-                      key={v.variante_id}
-                      type="button"
-                      disabled={v.stock <= 0}
-                      onClick={() => setSelectedVariant(v)}
-                      className={`shein-variant-pill ${isSelected ? "selected" : ""}`}
-                    >
-                      {v.talla} · {v.color}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          <button
-            type="button"
-            className="shein-cta-big"
-            disabled={sinStockSeleccionado}
-            onClick={handleAddToCart}
-          >
-            {sinStockSeleccionado ? "Agotado" : "Añadir a la bolsa"}
+          <button type="button" className="fashion-btn-primary fashion-detail-cta" disabled={sinStockSeleccionado} onClick={handleAddToCart}>
+            {sinStockSeleccionado ? 'Agotado' : 'Añadir a la bolsa'}<span aria-hidden="true">＋</span>
           </button>
-
-          <div className="shein-perks-box">
-            <div>✓ <strong>Envío Gratis</strong> en pedidos superiores a $29.99</div>
-            <div>✓ <strong>Devolución gratuita</strong> durante los primeros 30 días</div>
-            <div>✓ <strong>Stock verificado</strong> en tiempo real desde nuestra base de datos</div>
-          </div>
-
-          <div style={{ marginTop: "20px" }}>
-            <Link to="/" className="shein-btn-outline" style={{ display: "inline-block" }}>
-              ← Seguir comprando
-            </Link>
-          </div>
+          <div className="fashion-detail-note"><span aria-hidden="true">○</span><p>Disponibilidad actualizada en tiempo real.<br />Elige la variante que mejor va contigo.</p></div>
+          <Link to="/" className="fashion-back-link">← Seguir explorando</Link>
         </div>
       </div>
     </div>

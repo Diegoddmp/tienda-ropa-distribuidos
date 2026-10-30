@@ -1,0 +1,256 @@
+/* Base visual compartida por la tienda y administración; estilos limitados a .fashion-store. */
+.fashion-store {
+  --fashion-ink: #242521;
+  --fashion-muted: #72726b;
+  --fashion-line: #deded6;
+  --fashion-paper: #fdfcf9;
+  --fashion-sand: #eeece5;
+  --fashion-error: #8b5c4d;
+  --fashion-success: #536b50;
+  --fashion-display: Georgia, 'Times New Roman', serif;
+  background: var(--fashion-paper);
+  color: var(--fashion-ink);
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
+
+.fashion-store :is(button, input, select) { font: inherit; }
+.fashion-store :is(button, a, input, select):focus-visible { outline: 2px solid #75634b; outline-offset: 4px; }
+.fashion-store :is(a, button) { -webkit-tap-highlight-color: transparent; }
+.fashion-store .fashion-announcement { padding: 9px 20px; background: #282a25; color: #fff; text-align: center; font-size: 9px; letter-spacing: 2.8px; }
+.fashion-store .fashion-header { display: flex; align-items: center; justify-content: space-between; gap: 28px; min-height: 98px; padding: 20px clamp(20px, 4vw, 72px); border-bottom: 1px solid var(--fashion-line); }
+.fashion-store .fashion-wordmark { color: var(--fashion-ink); font-family: var(--fashion-display); font-size: 29px; letter-spacing: 3px; text-decoration: none; line-height: 1; white-space: nowrap; }
+.fashion-store .fashion-wordmark span { display: block; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9px; letter-spacing: 5.7px; margin-top: 9px; }
+.fashion-store .fashion-nav { display: flex; gap: 32px; align-items: center; }
+.fashion-store .fashion-nav a { color: var(--fashion-muted); font-size: 12px; text-decoration: none; padding: 7px 0; border-bottom: 1px solid transparent; }
+.fashion-store .fashion-nav a:is(:hover, [aria-current='page']) { color: var(--fashion-ink); border-color: var(--fashion-ink); }
+.fashion-store .fashion-header-actions { display: flex; gap: 28px; align-items: center; }
+.fashion-store .fashion-admin-link { color: var(--fashion-muted); text-decoration: none; font-size: 11px; }
+.fashion-store .fashion-admin-link:hover { color: var(--fashion-ink); text-decoration: underline; }
+.fashion-store .fashion-bag { display: flex; align-items: center; gap: 10px; border: 0; background: transparent; cursor: pointer; color: var(--fashion-ink); font-size: 12px; min-height: 44px; }
+.fashion-store .fashion-bag-count { font-size: 10px; min-width: 23px; height: 23px; display: grid; place-items: center; border: 1px solid var(--fashion-line); border-radius: 50%; }
+.fashion-store .fashion-main { width: 100%; max-width: 1680px; margin: 0 auto; padding: 0 clamp(20px, 4vw, 72px) 72px; flex: 1; }
+.fashion-store .fashion-intro { display: flex; align-items: flex-end; justify-content: space-between; gap: 36px; padding: 48px 0 44px; }
+.fashion-store .fashion-eyebrow { display: block; text-transform: uppercase; font-size: 10px; letter-spacing: 2.3px; color: var(--fashion-muted); margin-bottom: 17px; }
+.fashion-store .fashion-intro h1 { font-family: var(--fashion-display); font-size: clamp(38px, 4.7vw, 72px); font-weight: 400; line-height: 1.08; letter-spacing: -2.4px; }
+.fashion-store .fashion-intro h1 em { font-weight: 400; color: #7c7768; }
+.fashion-store .fashion-intro-note { flex-shrink: 0; padding-bottom: 3px; }
+.fashion-store .fashion-editorial-mark { display: block; font-size: 9px; letter-spacing: 1.8px; margin-bottom: 14px; color: var(--fashion-muted); }
+.fashion-store .fashion-intro-note p { font-size: 12px; color: var(--fashion-muted); line-height: 1.7; }
+.fashion-store .fashion-intro-note a { display: inline-flex; gap: 24px; color: var(--fashion-ink); text-decoration: none; border-bottom: 1px solid #99988f; padding-bottom: 4px; font-size: 11px; margin-top: 14px; }
+.fashion-store .fashion-collection { scroll-margin-top: 24px; }
+.fashion-store .fashion-collection-heading { display: flex; align-items: baseline; gap: 14px; padding-top: 22px; border-top: 1px solid var(--fashion-line); }
+.fashion-store .fashion-collection-heading h2 { font-size: 15px; font-weight: 500; }
+.fashion-store .fashion-collection-heading > span { font-size: 11px; color: var(--fashion-muted); }
+.fashion-store .fashion-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 16px 0 24px; }
+.fashion-store .fashion-categories { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.fashion-store .fashion-category { padding: 10px 17px; border: 1px solid transparent; border-radius: 2px; color: #5d5e56; background: transparent; font-size: 11px; cursor: pointer; transition: background .2s, color .2s; }
+.fashion-store .fashion-category:hover { background: var(--fashion-sand); }
+.fashion-store .fashion-category.active { color: #fff; background: var(--fashion-ink); }
+.fashion-store .fashion-search { display: flex; align-items: center; gap: 10px; flex: 0 0 260px; border-bottom: 1px solid #aaa99e; min-height: 42px; }
+.fashion-store .fashion-search:focus-within { border-color: var(--fashion-ink); }
+.fashion-store .fashion-search input { width: 100%; min-width: 0; border: 0; background: transparent; color: var(--fashion-ink); padding: 10px 0; font-size: 12px; }
+.fashion-store .fashion-search input::placeholder { color: var(--fashion-muted); opacity: 1; }
+.fashion-store .fashion-search button { border: 0; color: var(--fashion-ink); background: transparent; cursor: pointer; min-width: 36px; min-height: 40px; font-size: 20px; }
+.fashion-store .fashion-product-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 38px 22px; }
+.fashion-store .fashion-product-grid:has(> .fashion-card:only-child) { grid-template-columns: minmax(0, 1fr); max-width: 1040px; margin-inline: auto; }
+.fashion-store .fashion-card { min-width: 0; display: flex; flex-direction: column; }
+.fashion-store .fashion-card-image { position: relative; aspect-ratio: 3 / 4; overflow: hidden; background: var(--fashion-sand); }
+.fashion-store .fashion-card-image > a { display: block; height: 100%; color: inherit; text-decoration: none; }
+.fashion-store :is(.fashion-card-image, .fashion-detail-image) img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.fashion-store .fashion-card-image img { transition: transform .6s ease; }
+.fashion-store .fashion-card:is(:hover, :focus-within) .fashion-card-image img { transform: scale(1.035); }
+.fashion-store .fashion-stock-tag { position: absolute; top: 12px; left: 12px; background: rgba(253,252,249,.94); color: var(--fashion-ink); padding: 6px 10px; font-size: 9px; text-transform: uppercase; letter-spacing: 1.3px; }
+.fashion-store .fashion-quick-add { position: absolute; bottom: 12px; left: 12px; width: calc(100% - 24px); border: 1px solid var(--fashion-line); padding: 12px 8px; background: rgba(253,252,249,.97); color: var(--fashion-ink); font-size: 11px; cursor: pointer; transition: opacity .2s, transform .2s; opacity: 0; transform: translateY(8px); }
+.fashion-store .fashion-card:is(:hover, :focus-within) .fashion-quick-add { opacity: 1; transform: translateY(0); }
+.fashion-store .fashion-quick-add:hover:not(:disabled) { background: var(--fashion-ink); color: white; }
+.fashion-store .fashion-card-body { display: flex; flex-direction: column; flex: 1; padding-top: 15px; }
+.fashion-store .fashion-card-category { font-size: 9px; color: var(--fashion-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; overflow-wrap: anywhere; }
+.fashion-store .fashion-card-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.fashion-store .fashion-card-heading h3 { font-size: 13px; line-height: 1.5; font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
+.fashion-store .fashion-card-title { text-decoration: none; color: var(--fashion-ink); }
+.fashion-store .fashion-card-title:hover { text-decoration: underline; text-underline-offset: 4px; }
+.fashion-store .fashion-price { font-size: 13px; font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.fashion-store .fashion-card-availability { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px; color: var(--fashion-muted); font-size: 10px; margin: 13px 0 7px; }
+.fashion-store .fashion-sizes { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px; }
+.fashion-store .fashion-size { min-height: 32px; min-width: 32px; padding: 4px 9px; border: 1px solid var(--fashion-line); color: #68685f; background: transparent; font-size: 10px; cursor: pointer; transition: border-color .2s, background .2s; }
+.fashion-store :is(.fashion-size, .fashion-variant):hover:not(:disabled) { border-color: var(--fashion-ink); }
+.fashion-store :is(.fashion-size, .fashion-variant).selected { border-color: var(--fashion-ink); background: var(--fashion-ink); color: #fff; }
+.fashion-store :is(.fashion-size, .fashion-variant):disabled { color: #93938b; background: #f1f0eb; border-color: #e6e4dc; text-decoration: line-through; cursor: not-allowed; }
+.fashion-store .fashion-card-actions { display: flex; gap: 8px; margin-top: auto; }
+.fashion-store :is(.fashion-btn-outline, .fashion-btn-primary) { display: inline-flex; align-items: center; justify-content: center; gap: 14px; text-decoration: none; min-height: 42px; padding: 11px 16px; border: 1px solid var(--fashion-line); font-size: 11px; font-weight: 400; cursor: pointer; text-align: center; transition: color .2s, background .2s, border-color .2s; }
+.fashion-store .fashion-card-actions > * { flex: 1; padding-inline: 8px; }
+.fashion-store .fashion-btn-outline { background: transparent; color: var(--fashion-ink); }
+.fashion-store .fashion-btn-outline:hover { border-color: var(--fashion-ink); background: var(--fashion-sand); }
+.fashion-store .fashion-btn-primary { background: var(--fashion-ink); color: #fff; border-color: var(--fashion-ink); }
+.fashion-store .fashion-btn-primary:hover:not(:disabled) { background: #494b41; border-color: #494b41; }
+.fashion-store :is(.fashion-btn-primary, .fashion-quick-add):disabled { background: #e8e6df; border-color: #e8e6df; color: #77776c; cursor: not-allowed; }
+.fashion-store .fashion-image-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; color: #8a8577; background: linear-gradient(140deg, #f0eee8, #e5e2d9); text-align: center; }
+.fashion-store .fashion-image-placeholder svg { margin-bottom: 18px; opacity: .7; flex-shrink: 0; }
+.fashion-store .fashion-image-placeholder > span { font-size: 9px; letter-spacing: 1.7px; text-transform: uppercase; }
+.fashion-store .fashion-image-placeholder small { font-family: var(--fashion-display); font-style: italic; font-size: 15px; margin-top: 8px; overflow-wrap: anywhere; max-width: 100%; }
+.fashion-store .fashion-status { padding: 72px 20px; text-align: center; }
+.fashion-store .fashion-status :is(h1, h2) { font-family: var(--fashion-display); font-weight: 400; font-size: clamp(25px, 3vw, 38px); line-height: 1.25; }
+.fashion-store .fashion-status p { color: var(--fashion-muted); font-size: 13px; margin: 16px auto 24px; max-width: 440px; }
+.fashion-store .fashion-empty-symbol { display: block; font-size: 36px; color: #928d7f; font-weight: 300; margin-bottom: 20px; }
+.fashion-store .fashion-muted { font-size: 11px; color: var(--fashion-muted); }
+.fashion-store .fashion-breadcrumb { display: flex; flex-wrap: wrap; gap: 13px; font-size: 11px; color: var(--fashion-muted); padding: 25px 0; }
+.fashion-store .fashion-breadcrumb a { color: inherit; text-decoration: none; }
+.fashion-store .fashion-breadcrumb a:hover { text-decoration: underline; }
+.fashion-store .fashion-detail-layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: clamp(32px, 7vw, 112px); align-items: start; }
+.fashion-store .fashion-detail-image { width: 100%; aspect-ratio: 3 / 4; background: var(--fashion-sand); max-height: 850px; }
+.fashion-store .fashion-detail-info { padding: clamp(10px, 3vw, 48px) 0 20px; max-width: 500px; width: 100%; }
+.fashion-store .fashion-detail-info h1 { font-family: var(--fashion-display); font-size: clamp(30px, 3.2vw, 48px); font-weight: 400; line-height: 1.15; letter-spacing: -.8px; overflow-wrap: anywhere; }
+.fashion-store .fashion-reference { font-size: 10px; color: var(--fashion-muted); margin-top: 13px; letter-spacing: .7px; }
+.fashion-store .fashion-detail-price { font-size: 25px; font-weight: 400; font-variant-numeric: tabular-nums; margin: 22px 0; }
+.fashion-store .fashion-description { color: #66675e; font-size: 13px; line-height: 1.9; white-space: pre-line; overflow-wrap: anywhere; margin-bottom: 30px; }
+.fashion-store .fashion-variant-section { border-top: 1px solid var(--fashion-line); padding-top: 24px; }
+.fashion-store .fashion-variant-heading { display: flex; align-items: baseline; flex-wrap: wrap; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+.fashion-store .fashion-variant-heading h2 { font-size: 12px; font-weight: 500; }
+.fashion-store .fashion-variant-heading span { color: var(--fashion-muted); font-size: 10px; }
+.fashion-store .fashion-variants { display: flex; flex-wrap: wrap; gap: 8px; }
+.fashion-store .fashion-variant { padding: 12px 16px; min-height: 44px; border: 1px solid var(--fashion-line); color: var(--fashion-ink); background: transparent; cursor: pointer; font-size: 11px; }
+.fashion-store .fashion-selection { font-size: 11px; color: var(--fashion-muted); margin-top: 15px; }
+.fashion-store .fashion-selection strong { color: var(--fashion-ink); font-weight: 500; }
+.fashion-store .fashion-detail-cta { margin-top: 24px; width: 100%; min-height: 54px; justify-content: space-between; padding-inline: 22px; font-size: 12px; }
+.fashion-store .fashion-detail-note { display: flex; gap: 12px; font-size: 11px; line-height: 1.8; color: var(--fashion-muted); padding: 20px 0; border-bottom: 1px solid var(--fashion-line); }
+.fashion-store .fashion-back-link { display: inline-block; color: var(--fashion-ink); text-underline-offset: 5px; font-size: 11px; margin-top: 24px; }
+.fashion-store .fashion-footer { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin: 0 clamp(20px, 4vw, 72px); padding: 28px 0; border-top: 1px solid var(--fashion-line); }
+.fashion-store .fashion-footer-brand { color: var(--fashion-ink); text-decoration: none; font-family: var(--fashion-display); font-size: 14px; letter-spacing: 1.5px; }
+.fashion-store .fashion-footer p { font-size: 11px; color: var(--fashion-muted); }
+.fashion-store .fashion-footer > a:last-child { font-size: 10px; color: var(--fashion-muted); text-decoration: none; }
+
+/* Bolsa y compra: la misma superficie, tipografía y controles en todas las rutas. */
+.fashion-store .fashion-cart-dialog { position: fixed; inset: 0 0 0 auto; margin: 0; padding: 0; width: min(100%, 480px); max-width: 100vw; height: 100dvh; max-height: 100dvh; border: 0; border-left: 1px solid var(--fashion-line); background: var(--fashion-paper); color: var(--fashion-ink); overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; box-shadow: -16px 0 70px rgb(36 37 33 / 10%); }
+.fashion-store .fashion-cart-dialog::backdrop { background: rgb(36 37 33 / 42%); backdrop-filter: blur(2px); }
+.fashion-store .fashion-cart-shell { min-height: 100%; padding: 24px 32px 32px; }
+.fashion-store .fashion-cart-topline { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 12px; }
+.fashion-store .fashion-cart-topline .fashion-eyebrow { margin: 0; font-size: 9px; letter-spacing: 1.6px; }
+.fashion-store .fashion-cart-close { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-width: 44px; min-height: 44px; padding: 4px; background: transparent; border: 0; color: var(--fashion-muted); font-size: 11px; cursor: pointer; }
+.fashion-store .fashion-cart-close span { font-size: 25px; font-weight: 300; line-height: 1; }
+.fashion-store .fashion-cart-close:hover { color: var(--fashion-ink); }
+.fashion-store .fashion-cart-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 24px; border-bottom: 1px solid var(--fashion-line); }
+.fashion-store .fashion-cart-heading h2 { font-family: var(--fashion-display); font-size: 45px; font-weight: 400; letter-spacing: -1.3px; line-height: 1.15; }
+.fashion-store .fashion-cart-count { color: var(--fashion-muted); font-size: 11px; white-space: nowrap; }
+.fashion-store .fashion-cart-empty { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 72px 10px 36px; }
+.fashion-store .fashion-cart-empty > svg { color: #938c7c; margin-bottom: 30px; }
+.fashion-store .fashion-cart-empty h3 { font-family: var(--fashion-display); font-size: 29px; font-weight: 400; line-height: 1.2; }
+.fashion-store .fashion-cart-empty p { color: var(--fashion-muted); font-size: 12px; line-height: 1.9; max-width: 290px; margin: 18px 0 28px; }
+.fashion-store .fashion-cart-empty .fashion-btn-primary { min-height: 48px; padding-inline: 24px; }
+.fashion-store .fashion-cart-items { padding-bottom: 28px; }
+.fashion-store .fashion-cart-item { padding: 22px 0; border-bottom: 1px solid var(--fashion-line); }
+.fashion-store .fashion-cart-item-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.fashion-store .fashion-cart-item-heading h3 { padding-top: 8px; font-size: 15px; font-weight: 500; line-height: 1.5; overflow-wrap: anywhere; }
+.fashion-store .fashion-cart-remove { display: grid; place-items: center; flex-shrink: 0; width: 40px; height: 40px; margin: -2px -10px 0 0; background: transparent; border: 0; color: var(--fashion-muted); font-size: 24px; cursor: pointer; }
+.fashion-store .fashion-cart-remove:hover { color: var(--fashion-error); background: #f2e8e3; }
+.fashion-store .fashion-cart-variant { color: var(--fashion-muted); font-size: 11px; line-height: 1.8; }
+.fashion-store .fashion-cart-variant strong { font-weight: 400; color: var(--fashion-ink); }
+.fashion-store .fashion-cart-unit-price { margin-top: 6px; color: var(--fashion-muted); font-size: 11px; }
+.fashion-store .fashion-cart-item-bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+.fashion-store .fashion-cart-quantity { display: flex; align-items: center; border: 1px solid var(--fashion-line); }
+.fashion-store .fashion-cart-quantity button { display: grid; place-items: center; min-width: 40px; min-height: 40px; border: 0; background: transparent; color: var(--fashion-ink); font-size: 17px; cursor: pointer; }
+.fashion-store .fashion-cart-quantity button:hover:not(:disabled) { background: var(--fashion-sand); }
+.fashion-store .fashion-cart-quantity button:disabled { color: #b3b0a6; background: #f1f0eb; cursor: not-allowed; }
+.fashion-store .fashion-cart-quantity > span { min-width: 30px; text-align: center; font-size: 12px; font-variant-numeric: tabular-nums; }
+.fashion-store .fashion-cart-subtotal { font-size: 14px; font-variant-numeric: tabular-nums; }
+.fashion-store .fashion-cart-subtotal > span { color: var(--fashion-muted); font-size: 10px; margin-right: 8px; }
+.fashion-store .fashion-cart-stock-note { margin-top: 12px; color: var(--fashion-muted); font-size: 10px; }
+.fashion-store .fashion-cart-checkout .fashion-eyebrow { margin-bottom: 10px; font-size: 9px; }
+.fashion-store .fashion-cart-checkout h3 { font-family: var(--fashion-display); font-size: 27px; font-weight: 400; line-height: 1.3; }
+.fashion-store .fashion-cart-help { color: var(--fashion-muted); font-size: 11px; line-height: 1.8; margin: 9px 0 22px; }
+.fashion-store .fashion-field-label { display: block; color: var(--fashion-ink); font-size: 11px; margin-bottom: 8px; }
+.fashion-store .fashion-field { width: 100%; min-height: 48px; padding: 12px 14px; color: var(--fashion-ink); background: transparent; border: 1px solid #c9c6bb; border-radius: 2px; font-size: 13px; }
+.fashion-store .fashion-field::placeholder { color: var(--fashion-muted); opacity: 1; }
+.fashion-store .fashion-field:focus { border-color: var(--fashion-ink); }
+.fashion-store .fashion-field[aria-invalid='true'] { border-color: var(--fashion-error); }
+.fashion-store .fashion-feedback { padding: 13px 15px; margin-top: 14px; font-size: 12px; line-height: 1.7; border: 1px solid var(--fashion-line); overflow-wrap: anywhere; }
+.fashion-store .fashion-feedback-error { background: #f5eeea; border-color: #e6d6cd; color: var(--fashion-error); }
+.fashion-store .fashion-cart-total { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--fashion-line); }
+.fashion-store .fashion-cart-total > span { font-size: 13px; }
+.fashion-store .fashion-cart-total strong { font-family: var(--fashion-display); font-size: 32px; font-weight: 400; font-variant-numeric: tabular-nums; }
+.fashion-store .fashion-cart-submit { width: 100%; justify-content: space-between; padding-inline: 20px; min-height: 52px; margin-top: 20px; font-size: 12px; }
+.fashion-store .fashion-cart-submit:disabled { cursor: wait; }
+.fashion-store .fashion-cart-continue { display: block; min-height: 44px; margin: 14px auto 0; padding: 8px; color: var(--fashion-muted); background: transparent; border: 0; text-decoration: underline; text-underline-offset: 5px; font-size: 11px; cursor: pointer; }
+.fashion-store .fashion-cart-continue:hover { color: var(--fashion-ink); }
+.fashion-store .fashion-order-confirmation { position: fixed; right: 24px; bottom: 24px; z-index: 200; display: flex; align-items: center; gap: 16px; max-width: min(480px, calc(100% - 40px)); padding: 20px 18px 20px 22px; border: 1px solid #d3d7ca; background: var(--fashion-paper); box-shadow: 0 8px 36px rgb(36 37 33 / 12%); }
+.fashion-store .fashion-order-confirmation > div { min-width: 0; overflow-wrap: anywhere; }
+.fashion-store .fashion-order-confirmation .fashion-eyebrow { color: var(--fashion-success); margin-bottom: 5px; font-size: 8px; letter-spacing: 1.4px; }
+.fashion-store .fashion-order-confirmation h2 { font-family: var(--fashion-display); font-size: 22px; font-weight: 400; line-height: 1.3; }
+.fashion-store .fashion-order-confirmation p { margin-top: 7px; color: var(--fashion-muted); font-size: 11px; }
+.fashion-store .fashion-order-tracking-link { display: inline-block; margin-top: 12px; color: var(--fashion-ink); font-size: 11px; text-underline-offset: 4px; }
+.fashion-store .fashion-order-check { display: grid; place-items: center; width: 34px; height: 34px; flex-shrink: 0; border: 1px solid #d3d7ca; color: var(--fashion-success); border-radius: 50%; }
+
+@media (min-width: 1681px) {
+  .fashion-store .fashion-header { padding-inline: max(72px, calc((100vw - 1536px) / 2)); }
+}
+@media (min-width: 768px) {
+  .fashion-store .fashion-product-grid:has(> .fashion-card:nth-child(2):last-child) { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 960px; margin-inline: auto; }
+  .fashion-store .fashion-product-grid:has(> .fashion-card:nth-child(3):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .fashion-store .fashion-card:only-child { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: center; gap: clamp(30px, 5vw, 80px); }
+  .fashion-store .fashion-card:only-child .fashion-card-body { padding-block: 24px; }
+  .fashion-store .fashion-card:only-child .fashion-card-heading { flex-direction: column; gap: 14px; }
+  .fashion-store .fashion-card:only-child .fashion-card-heading h3 { font-family: var(--fashion-display); font-size: clamp(26px, 3vw, 40px); font-weight: 400; }
+  .fashion-store .fashion-card:only-child .fashion-price { font-size: 22px; }
+  .fashion-store .fashion-card:only-child .fashion-card-category { margin-bottom: 16px; }
+  .fashion-store .fashion-card:only-child .fashion-card-availability { border-top: 1px solid var(--fashion-line); padding-top: 22px; margin-top: 24px; }
+  .fashion-store .fashion-card:only-child .fashion-card-actions { margin-top: 16px; }
+}
+@media (max-width: 1199px) {
+  .fashion-store .fashion-product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .fashion-store .fashion-intro h1 { max-width: 540px; }
+}
+@media (max-width: 767px) {
+  .fashion-store .fashion-cart-shell { padding: 18px 24px 24px; }
+  .fashion-store .fashion-field { font-size: 16px; }
+  .fashion-store .fashion-order-confirmation { right: 20px; bottom: 20px; gap: 12px; }
+  .fashion-store .fashion-header { min-height: 86px; flex-wrap: wrap; gap: 18px; padding-block: 18px 0; }
+  .fashion-store .fashion-wordmark { font-size: 25px; }
+  .fashion-store .fashion-header-actions { gap: 18px; }
+  .fashion-store .fashion-nav { order: 3; width: 100%; justify-content: center; flex-wrap: wrap; gap: 12px 24px; }
+  .fashion-store .fashion-nav a { padding: 8px 0 12px; font-size: 11px; }
+  .fashion-store .fashion-main { padding-bottom: 40px; }
+  .fashion-store .fashion-intro { padding: 30px 0; align-items: flex-start; flex-direction: column; gap: 20px; }
+  .fashion-store .fashion-intro h1 { font-size: clamp(36px, 7vw, 52px); letter-spacing: -1.4px; }
+  .fashion-store .fashion-intro-note { width: 100%; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+  .fashion-store .fashion-editorial-mark { display: none; }
+  .fashion-store .fashion-intro-note a { margin-top: 0; flex-shrink: 0; gap: 12px; font-size: 10px; }
+  .fashion-store .fashion-intro-note p { font-size: 11px; }
+  .fashion-store .fashion-toolbar { flex-direction: column; align-items: stretch; gap: 14px; padding-bottom: 22px; }
+  .fashion-store .fashion-search { flex: auto; }
+  .fashion-store .fashion-categories { gap: 4px; }
+  .fashion-store .fashion-category { padding-inline: 12px; }
+  .fashion-store .fashion-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 30px 14px; }
+  .fashion-store .fashion-card-heading { flex-direction: column; gap: 4px; }
+  .fashion-store .fashion-card-heading h3 { font-size: 12px; }
+  .fashion-store .fashion-card-actions { flex-direction: column; gap: 6px; }
+  .fashion-store .fashion-card-actions > * { flex: auto; }
+  .fashion-store .fashion-card-availability { font-size: 9px; }
+  .fashion-store .fashion-detail-layout { grid-template-columns: 1fr; gap: 24px; }
+  .fashion-store .fashion-detail-image { max-height: none; }
+  .fashion-store .fashion-detail-info { max-width: none; padding-top: 0; }
+  .fashion-store .fashion-detail-info h1 { font-size: 36px; }
+  .fashion-store .fashion-footer { flex-wrap: wrap; gap: 16px; padding-block: 24px; }
+  .fashion-store .fashion-footer p { width: 100%; order: 3; }
+  .fashion-store .fashion-status { padding: 48px 8px; }
+}
+@media (max-width: 380px) {
+  .fashion-store .fashion-cart-shell { padding-inline: 20px; }
+  .fashion-store .fashion-cart-heading h2 { font-size: 39px; }
+  .fashion-store .fashion-header-actions { gap: 10px; }
+  .fashion-store .fashion-bag { gap: 6px; }
+  .fashion-store .fashion-bag > span:not(.fashion-bag-count) { display: none; }
+  .fashion-store .fashion-intro-note { flex-direction: column; align-items: flex-start; }
+  .fashion-store .fashion-product-grid { grid-template-columns: 1fr; }
+}
+@media (hover: none) {
+  .fashion-store .fashion-quick-add { opacity: 1; transform: none; position: static; width: 100%; min-height: 44px; }
+  .fashion-store .fashion-card-image { aspect-ratio: auto; overflow: visible; }
+  .fashion-store .fashion-card-image > a { aspect-ratio: 3 / 4; height: auto; overflow: hidden; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fashion-store :is(.fashion-card-image img, .fashion-quick-add, .fashion-category, .fashion-size, .fashion-btn-primary, .fashion-btn-outline) { transition: none; }
+  .fashion-store .fashion-card:is(:hover, :focus-within) .fashion-card-image img { transform: none; }
+}
