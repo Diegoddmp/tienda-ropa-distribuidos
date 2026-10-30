@@ -133,6 +133,8 @@ router.patch('/variante/:id', async (req, res) => {
         }
 
         await cliente.query('COMMIT');
+        const io = req.app.get('io');
+        if (io) io.emit('inventory:update');
 
         res.status(200).json({
             mensaje: 'Inventario actualizado correctamente',

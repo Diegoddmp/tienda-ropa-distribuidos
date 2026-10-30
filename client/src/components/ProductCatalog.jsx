@@ -1,33 +1,82 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link, useOutletContext } from 'react-router-dom';
+import socket from '../services/socket';
 
 const ProductCatalog = () => {
+  const { addToCart } = useOutletContext() || {};
   const [products, setProducts] = useState([]);
+  const [selectedVariantByProduct, setSelectedVariantByProduct] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('TODAS');
   const [searchTerm, setSearchTerm] = useState('');
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch('http://localhost:3000/api/productos');
+  const fetchProducts = useCallback(async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/productos');
 
-        if (!response.ok) {
-          throw new Error('Error al obtener los productos');
-        }
-
-        const data = await response.json();
-        setProducts(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error('Error al obtener los productos');
       }
-    };
 
-    fetchProducts();
+      const data = await response.json();
+      setProducts(data);
+
+      // Seleccionar por defecto la primera variante con stock de cada producto
+      setSelectedVariantByProduct((prev) => {
+        const next = { ...prev };
+        data.forEach((product) => {
+          const variantesConStock = (product.variantes || []).filter((v) => v.stock > 0);
+          const currentSelected = next[product.id];
+          const stillValid =
+            currentSelected &&
+            variantesConStock.some((v) => v.id === currentSelected.id);
+
+          if (!stillValid) {
+            next[product.id] = variantesConStock[0] || null;
+          } else {
+            // Actualizar stock de la variante seleccionada
+            next[product.id] = variantesConStock.find((v) => v.id === currentSelected.id);
+          }
+        });
+        return next;
+      });
+
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchProducts();
+
+    // Escuchar actualizaciones de inventario en tiempo real
+    socket.on('inventory:update', fetchProducts);
+    if (!socket.connected) {
+      socket.connect();
+    }
+
+    return () => {
+      socket.off('inventory:update', fetchProducts);
+    };
+  }, [fetchProducts]);
+
+  const handleSelectVariant = (productId, variante) => {
+    setSelectedVariantByProduct((prev) => ({
+      ...prev,
+      [productId]: variante,
+    }));
+  };
+
+  const handleAddFromCatalog = (product, variantesConStock) => {
+    if (!addToCart || variantesConStock.length === 0) return;
+    const chosenVariant =
+      selectedVariantByProduct[product.id] || variantesConStock[0];
+    addToCart(product, chosenVariant);
+  };
 
   if (loading) {
     return <div className="shein-status-box">Cargando tendencia...</div>;
@@ -36,16 +85,16 @@ const ProductCatalog = () => {
   if (error) {
     return (
       <div className="shein-status-box" style={{ color: '#fa6338' }}>
-        <h3>No se pudo conectar con el catÃ¡logo</h3>
+        <h3>No se pudo conectar con el catálogo</h3>
         <p style={{ marginTop: '8px' }}>Detalle: {error}</p>
       </div>
     );
   }
 
-  // CategorÃ­as Ãºnicas extraÃ­das de los productos
+  // Categorías únicas extraídas de los productos
   const categories = ['TODAS', ...new Set(products.map((p) => p.categoria).filter(Boolean))];
 
-  // Filtrado por categorÃ­a y texto de bÃºsqueda
+  // Filtrado por categoría y texto de búsqueda
   const filteredProducts = products.filter((product) => {
     const matchesCategory =
       selectedCategory === 'TODAS' || product.categoria === selectedCategory;
@@ -61,18 +110,18 @@ const ProductCatalog = () => {
       <section className="shein-hero">
         <div>
           <span className="shein-hero-tag">Tendencia 2026</span>
-          <h2>ColecciÃ³n Esenciales</h2>
-          <p>Descubre las prendas mÃ¡s buscadas con disponibilidad en tiempo real.</p>
+          <h2>Colección Esenciales</h2>
+          <p>Descubre las prendas más buscadas con disponibilidad en tiempo real.</p>
         </div>
-         Llamado a la acciÃ³n promocional (comentado para uso futuro)
+         Llamado a la acción promocional (comentado para uso futuro)
         <div className="shein-hero-promo-box">
           <strong>HASTA -40%</strong>
-          <span>En artÃ­culos seleccionados</span>
+          <span>En artículos seleccionados</span>
         </div>
 
       </section>*/}
 
-      {/* Barra de filtros por categorÃ­a y buscador */}
+      {/* Barra de filtros por categoría y buscador */}
       <div className="catalog-toolbar">
         <div className="category-pills">
           {categories.map((cat) => (
@@ -110,8 +159,9 @@ const ProductCatalog = () => {
           {filteredProducts.map((product) => {
             const variantes = product.variantes || [];
             const variantesConStock = variantes.filter((v) => v.stock > 0);
-            const tallasUnicas = [...new Set(variantesConStock.map((v) => v.talla))];
-            const agotado = variantes.length > 0 && tallasUnicas.length === 0;
+            const agotado = variantesConStock.length === 0;
+            const selectedVariant =
+              selectedVariantByProduct[product.id] || variantesConStock[0] || null;
 
             return (
               <div key={product.id} className="shein-card">
@@ -132,8 +182,15 @@ const ProductCatalog = () => {
 
                   {agotado && <span className="shein-stock-tag">Agotado</span>}
 
-                  <button type="button" className="shein-quick-add" disabled={agotado}>
-                    {agotado ? 'Sin Stock' : '+ AÃ±adir a la bolsa'}
+                  <button
+                    type="button"
+                    className="shein-quick-add"
+                    disabled={agotado}
+                    onClick={() => handleAddFromCatalog(product, variantesConStock)}
+                  >
+                    {agotado
+                      ? 'Sin Stock'
+                      : `+ Añadir (${selectedVariant?.talla}${selectedVariant?.color ? ' · ' + selectedVariant.color : ''})`}
                   </button>
                 </div>
 
@@ -146,17 +203,45 @@ const ProductCatalog = () => {
                     <span className="shein-price">
                       ${parseFloat(product.precio).toFixed(2)}
                     </span>
+                    {selectedVariant && !agotado && (
+                      <span style={{ fontSize: '0.72rem', color: '#767676' }}>
+                        Stock: {selectedVariant.stock}
+                      </span>
+                    )}
                   </div>
 
+                  {/* Botones interactivos de tallas / variantes */}
                   <div className="shein-sizes-row">
-                    {tallasUnicas.length > 0 ? (
-                      tallasUnicas.map((talla) => (
-                        <span key={talla} className="shein-size-chip">
-                          {talla}
-                        </span>
-                      ))
+                    {variantes.length > 0 ? (
+                      variantes.map((v) => {
+                        const isSelected = selectedVariant?.id === v.id;
+                        const sinStock = v.stock <= 0;
+                        return (
+                          <button
+                            key={v.id}
+                            type="button"
+                            disabled={sinStock}
+                            onClick={() => handleSelectVariant(product.id, v)}
+                            className={`shein-size-chip ${isSelected ? 'selected' : ''}`}
+                            title={
+                              sinStock
+                                ? `${v.talla} (${v.color}) - Agotado`
+                                : `${v.talla} (${v.color}) - ${v.stock} disponibles`
+                            }
+                          >
+                            {v.talla}
+                            {variantes.some(
+                              (other) => other.id !== v.id && other.talla === v.talla
+                            )
+                              ? ` · ${v.color}`
+                              : ''}
+                          </button>
+                        );
+                      })
                     ) : (
-                      <span className="shein-size-chip">Sin tallas disponibles</span>
+                      <span className="shein-size-chip" style={{ cursor: 'default' }}>
+                        Sin tallas disponibles
+                      </span>
                     )}
                   </div>
 
@@ -164,8 +249,13 @@ const ProductCatalog = () => {
                     <Link to={`/producto/${product.id}`} className="shein-btn-outline">
                       Ver detalle
                     </Link>
-                    <button type="button" className="shein-btn-primary" disabled={agotado}>
-                      Agregar
+                    <button
+                      type="button"
+                      className="shein-btn-primary"
+                      disabled={agotado}
+                      onClick={() => handleAddFromCatalog(product, variantesConStock)}
+                    >
+                      {agotado ? 'Agotado' : 'Agregar'}
                     </button>
                   </div>
                 </div>

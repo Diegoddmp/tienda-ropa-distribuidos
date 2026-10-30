@@ -8,29 +8,36 @@ export function ShoppingCart({
   onRemoveFromCart,
   onConfirmOrder,
 }) {
+  const [nombreCliente, setNombreCliente] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const handleCheckout = async () => {
+  const handleCheckout = async (e) => {
+    e.preventDefault();
     if (cart.length === 0) return;
 
+    if (!nombreCliente.trim()) {
+      setErrorMsg('Por favor ingresa tu nombre para registrar el pedido.');
+      return;
+    }
+
+    setErrorMsg('');
     setLoading(true);
 
-    const orderData = {
-      orderId: 'ORD-' + Date.now().toString().slice(-6),
-      timestamp: new Date().toISOString(),
+    // Estructura exacta requerida por POST /api/pedidos en el backend
+    const orderPayload = {
+      nombre_cliente: nombreCliente.trim(),
       items: cart.map((item) => ({
-        productId: item.id,
-        name: item.name,
-        size: item.size,
-        quantity: item.quantity,
-        unitPrice: item.price,
-        subtotal: item.subtotal,
+        variante_id: item.variante_id,
+        cantidad: item.quantity,
       })),
-      total: totalAmount,
     };
 
     try {
-      await onConfirmOrder(orderData);
+      await onConfirmOrder(orderPayload);
+      setNombreCliente('');
+    } catch (err) {
+      setErrorMsg(err.message || 'No se pudo procesar el pedido.');
     } finally {
       setLoading(false);
     }
@@ -43,29 +50,28 @@ export function ShoppingCart({
       padding: '24px',
       backgroundColor: '#ffffff',
       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
-      minWidth: '340px',
-      maxWidth: '400px',
+      width: '100%',
       height: 'fit-content',
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid #edf2f7', paddingBottom: '12px' }}>
         <h2 style={{ fontSize: '1.25rem', margin: 0, color: '#1a202c' }}>
-          Mi Carrito
+          Mi Bolsa
         </h2>
         <span style={{ backgroundColor: '#edf2f7', color: '#4a5568', padding: '2px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 'bold' }}>
-          {totalItemsCount} prendas
+          {totalItemsCount} {totalItemsCount === 1 ? 'prenda' : 'prendas'}
         </span>
       </div>
 
       {cart.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '30px 0', color: '#a0aec0' }}>
-          <p style={{ margin: 0 }}>El carrito está vacío.</p>
+          <p style={{ margin: 0 }}>Tu bolsa está vacía.</p>
         </div>
       ) : (
-        <>
-          <div style={{ maxHeight: '340px', overflowY: 'auto', marginBottom: '16px', paddingRight: '4px' }}>
+        <form onSubmit={handleCheckout}>
+          <div style={{ maxHeight: '320px', overflowY: 'auto', marginBottom: '16px', paddingRight: '4px' }}>
             {cart.map((item) => (
               <div
-                key={`${item.id}-${item.size}`}
+                key={item.variante_id}
                 style={{
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -79,16 +85,19 @@ export function ShoppingCart({
                     {item.name}
                   </div>
                   <div style={{ fontSize: '0.8rem', color: '#718096', marginTop: '2px' }}>
-                    Talla: <strong>{item.size}</strong> · ${item.price.toFixed(2)} c/u
+                    Talla: <strong>{item.size}</strong>
+                    {item.color ? <> · Color: <strong>{item.color}</strong></> : null}
+                    {' '}· ${item.price.toFixed(2)} c/u
                   </div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#3182ce', marginTop: '4px' }}>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#fa6338', marginTop: '4px' }}>
                     Subtotal: ${item.subtotal.toFixed(2)}
                   </div>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <button
-                    onClick={() => onUpdateQuantity(item.id, item.size, item.quantity - 1)}
+                    type="button"
+                    onClick={() => onUpdateQuantity(item.variante_id, item.quantity - 1)}
                     style={{
                       width: '28px',
                       height: '28px',
@@ -105,7 +114,8 @@ export function ShoppingCart({
                     {item.quantity}
                   </span>
                   <button
-                    onClick={() => onUpdateQuantity(item.id, item.size, item.quantity + 1)}
+                    type="button"
+                    onClick={() => onUpdateQuantity(item.variante_id, item.quantity + 1)}
                     disabled={item.quantity >= item.stock}
                     style={{
                       width: '28px',
@@ -120,7 +130,8 @@ export function ShoppingCart({
                     +
                   </button>
                   <button
-                    onClick={() => onRemoveFromCart(item.id, item.size)}
+                    type="button"
+                    onClick={() => onRemoveFromCart(item.variante_id)}
                     style={{
                       border: 'none',
                       background: 'none',
@@ -140,32 +151,64 @@ export function ShoppingCart({
           </div>
 
           <div style={{ borderTop: '2px solid #edf2f7', paddingTop: '16px' }}>
+            <div style={{ marginBottom: '14px' }}>
+              <label
+                htmlFor="nombre-cliente-input"
+                style={{ display: 'block', fontSize: '0.82rem', fontWeight: '700', color: '#2d3748', marginBottom: '6px', textTransform: 'uppercase' }}
+              >
+                Nombre del Cliente *
+              </label>
+              <input
+                id="nombre-cliente-input"
+                type="text"
+                placeholder="Ej. María Gómez"
+                value={nombreCliente}
+                onChange={(e) => setNombreCliente(e.target.value)}
+                maxLength={100}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #cbd5e0',
+                  borderRadius: '6px',
+                  fontSize: '0.9rem',
+                }}
+              />
+            </div>
+
+            {errorMsg && (
+              <div style={{ color: '#e53e3e', fontSize: '0.83rem', marginBottom: '12px', fontWeight: '600' }}>
+                {errorMsg}
+              </div>
+            )}
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <span style={{ fontSize: '1rem', color: '#4a5568' }}>Total:</span>
-              <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#2d3748' }}>
+              <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#000000' }}>
                 ${totalAmount.toFixed(2)}
               </span>
             </div>
 
             <button
-              onClick={handleCheckout}
+              type="submit"
               disabled={loading}
               style={{
                 width: '100%',
-                padding: '12px',
-                backgroundColor: loading ? '#a0aec0' : '#3182ce',
+                padding: '14px',
+                backgroundColor: loading ? '#a0aec0' : '#000000',
                 color: '#ffffff',
                 border: 'none',
-                borderRadius: '8px',
-                fontSize: '1rem',
-                fontWeight: 'bold',
+                borderRadius: '4px',
+                fontSize: '0.9rem',
+                fontWeight: '800',
+                letterSpacing: '1px',
+                textTransform: 'uppercase',
                 cursor: loading ? 'not-allowed' : 'pointer',
               }}
             >
-              {loading ? 'Confirmando pedido...' : 'Confirmar Pedido'}
+              {loading ? 'Procesando compra...' : 'Confirmar Pedido'}
             </button>
           </div>
-        </>
+        </form>
       )}
     </div>
   );

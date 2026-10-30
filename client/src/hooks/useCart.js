@@ -3,29 +3,46 @@ import { useState } from 'react';
 export function useCart() {
   const [cart, setCart] = useState([]);
 
-  const addToCart = (product, selectedSize) => {
-    if (!selectedSize) {
-      alert('Por favor selecciona una talla antes de agregar al carrito.');
+  const addToCart = (product, selectedVariant) => {
+    if (!selectedVariant) {
+      alert('Por favor selecciona una variante disponible antes de agregar a la bolsa.');
       return;
     }
 
+    const varianteId = Number(selectedVariant.variante_id ?? selectedVariant.id);
+    const stockDisponible = Number(selectedVariant.stock ?? 0);
+
+    if (!varianteId || stockDisponible <= 0) {
+      alert('Esta variante no tiene stock disponible.');
+      return;
+    }
+
+    const precioUnitario = Number(product.precio ?? product.price ?? 0);
+    const nombreProducto = product.nombre || product.name || 'Prenda';
+    const talla = selectedVariant.talla || selectedVariant.size || 'UNICA';
+    const color = selectedVariant.color || '';
+
     setCart((prevCart) => {
       const itemIndex = prevCart.findIndex(
-        (item) => item.id === product.id && item.size === selectedSize
+        (item) => item.variante_id === varianteId
       );
 
       if (itemIndex > -1) {
         const item = prevCart[itemIndex];
-        if (item.quantity >= item.stock) {
-          alert(`Stock máximo alcanzado (${item.stock} unidades) para la talla ${selectedSize}.`);
+        if (item.quantity >= stockDisponible) {
+          alert(
+            `Stock máximo alcanzado (${stockDisponible} unidades) para ${nombreProducto} (${talla}${color ? ' · ' + color : ''}).`
+          );
           return prevCart;
         }
 
         const updated = [...prevCart];
+        const nuevaCantidad = item.quantity + 1;
         updated[itemIndex] = {
           ...item,
-          quantity: item.quantity + 1,
-          subtotal: (item.quantity + 1) * item.price,
+          stock: stockDisponible,
+          quantity: nuevaCantidad,
+          subtotal: nuevaCantidad * item.price,
         };
         return updated;
       }
@@ -33,27 +50,29 @@ export function useCart() {
       return [
         ...prevCart,
         {
+          variante_id: varianteId,
           id: product.id,
-          name: product.name,
-          price: Number(product.price),
-          size: selectedSize,
-          stock: product.stock,
+          name: nombreProducto,
+          price: precioUnitario,
+          size: talla,
+          color,
+          stock: stockDisponible,
           quantity: 1,
-          subtotal: Number(product.price),
+          subtotal: precioUnitario,
         },
       ];
     });
   };
 
-  const updateQuantity = (productId, size, newQuantity) => {
+  const updateQuantity = (varianteId, newQuantity) => {
     if (newQuantity <= 0) {
-      removeFromCart(productId, size);
+      removeFromCart(varianteId);
       return;
     }
 
     setCart((prevCart) =>
       prevCart.map((item) => {
-        if (item.id === productId && item.size === size) {
+        if (item.variante_id === varianteId) {
           const validQty = Math.min(newQuantity, item.stock);
           return {
             ...item,
@@ -66,9 +85,9 @@ export function useCart() {
     );
   };
 
-  const removeFromCart = (productId, size) => {
+  const removeFromCart = (varianteId) => {
     setCart((prevCart) =>
-      prevCart.filter((item) => !(item.id === productId && item.size === size))
+      prevCart.filter((item) => item.variante_id !== varianteId)
     );
   };
 

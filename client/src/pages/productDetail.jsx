@@ -1,43 +1,64 @@
-import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
+import { useParams, Link, useOutletContext } from "react-router-dom";
+import socket from "../services/socket";
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const { addToCart } = useOutletContext() || {};
   const [product, setProduct] = useState(null);
   const [variantes, setVariantes] = useState([]);
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchProductAndInventory = async () => {
-      try {
-        const [prodRes, invRes] = await Promise.all([
-          fetch(`http://localhost:3000/api/productos/${id}`),
-          fetch(`http://localhost:3000/api/inventario/producto/${id}`)
-        ]);
+  const fetchProductAndInventory = useCallback(async () => {
+    try {
+      const [prodRes, invRes] = await Promise.all([
+        fetch(`http://localhost:3000/api/productos/${id}`),
+        fetch(`http://localhost:3000/api/inventario/producto/${id}`)
+      ]);
 
-        if (!prodRes.ok) {
-          throw new Error("Producto no encontrado");
-        }
-
-        const prodData = await prodRes.json();
-        const invData = invRes.ok ? await invRes.json() : [];
-
-        setProduct(prodData);
-        setVariantes(invData);
-
-        const firstAvailable = invData.find((v) => v.stock > 0) || invData[0] || null;
-        setSelectedVariant(firstAvailable);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+      if (!prodRes.ok) {
+        throw new Error("Producto no encontrado");
       }
-    };
 
-    fetchProductAndInventory();
+      const prodData = await prodRes.json();
+      const invData = invRes.ok ? await invRes.json() : [];
+
+      setProduct(prodData);
+      setVariantes(invData);
+
+      setSelectedVariant((prev) => {
+        if (prev) {
+          const updatedPrev = invData.find((v) => v.variante_id === prev.variante_id);
+          if (updatedPrev && updatedPrev.stock > 0) return updatedPrev;
+        }
+        return invData.find((v) => v.stock > 0) || invData[0] || null;
+      });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
+
+  useEffect(() => {
+    fetchProductAndInventory();
+
+    socket.on("inventory:update", fetchProductAndInventory);
+    if (!socket.connected) {
+      socket.connect();
+    }
+
+    return () => {
+      socket.off("inventory:update", fetchProductAndInventory);
+    };
+  }, [fetchProductAndInventory]);
+
+  const handleAddToCart = () => {
+    if (!addToCart || !product || !selectedVariant) return;
+    addToCart(product, selectedVariant);
+  };
 
   if (loading) {
     return <div className="shein-status-box">Cargando prenda...</div>;
@@ -55,6 +76,8 @@ const ProductDetail = () => {
       </div>
     );
   }
+
+  const sinStockSeleccionado = !selectedVariant || selectedVariant.stock <= 0;
 
   return (
     <div>
@@ -125,9 +148,10 @@ const ProductDetail = () => {
           <button
             type="button"
             className="shein-cta-big"
-            disabled={selectedVariant && selectedVariant.stock <= 0}
+            disabled={sinStockSeleccionado}
+            onClick={handleAddToCart}
           >
-            Añadir a la bolsa
+            {sinStockSeleccionado ? "Agotado" : "Añadir a la bolsa"}
           </button>
 
           <div className="shein-perks-box">

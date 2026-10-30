@@ -426,7 +426,29 @@ body {
   color: var(--shein-gray);
   border: 1px solid var(--shein-border);
   padding: 1px 6px;
+  padding: 4px 8px;
   border-radius: 2px;
+  background-color: var(--shein-white);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.shein-size-chip:hover:not(:disabled) {
+  border-color: var(--shein-black);
+  color: var(--shein-black);
+}
+
+.shein-size-chip.selected {
+  background-color: var(--shein-black);
+  color: var(--shein-white);
+  border-color: var(--shein-black);
+  font-weight: 800;
+}
+
+.shein-size-chip:disabled {
+  opacity: 0.35;
+  text-decoration: line-through;
+  cursor: not-allowed;
 }
 
 .shein-card-actions {

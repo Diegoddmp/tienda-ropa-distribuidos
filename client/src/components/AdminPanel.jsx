@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import socket from "../services/socket";
 import "./AdminPanel.css";
 
@@ -149,7 +150,7 @@ function AdminPanel() {
     <div className="admin-panel">
       <header className="admin-panel__header">
         <div>
-          <p className="admin-panel__eyebrow">TIENDA / ADMINISTRACIÓN</p>
+          <p className="admin-panel__eyebrow"><Link to="/" style={{ color: "inherit", textDecoration: "underline" }}>← VOLVER A LA TIENDA</Link> / ADMINISTRACIÓN</p>
           <h1 className="admin-panel__title">Panel de Administración</h1>
           <p className="admin-panel__subtitle">Gestión de pedidos e inventario de la tienda</p>
         </div>
